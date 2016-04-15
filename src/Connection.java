@@ -1,4 +1,6 @@
 public interface Connection {
-    void send(Message message);
+    boolean send(Message message);
     Message receive();  // blocks
+    boolean connect();
+    boolean disconnect();
 }

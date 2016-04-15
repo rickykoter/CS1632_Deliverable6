@@ -1,13 +1,40 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.PrintStream;
 
 public class ChatApp extends JFrame {
     private JPanel mainPanel;
+    private JTextField hostTextField;
+    private JTextField portTextField;
+    private JLabel portLabel;
+    private JLabel hostLabel;
+    private JButton sendButton;
+    private JLabel aliasLabel;
+    private JTextField aliasTextField;
+    private JScrollPane outputScrollPane;
+    private JTextArea chatTextArea;
+    private JButton sendMessageButton;
+    private JButton connectButton;
+    private JButton disconnectButton;
+    private JTextField messageTextArea;
+    private JLabel messageLabel;
+    private JLabel chatAreaLabel;
+
+    public ChatApp() {
+        System.setOut(new PrintStream(new TextAreaOutputStream(chatTextArea)));
+        connectButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+    }
 
     public static void main(String[] args) {
         setTheme();
         ChatApp gui = new ChatApp();
-        JFrame frame = new JFrame("RunClientGui");
+        JFrame frame = new JFrame("Chat App");
         frame.setContentPane(gui.mainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
@@ -20,6 +47,10 @@ public class ChatApp extends JFrame {
         } catch (Exception ignored) {
             // if we can't get a nice theme, run anyway
         }
+    }
+
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
     }
 
     {
@@ -38,7 +69,144 @@ public class ChatApp extends JFrame {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridBagLayout());
+        mainPanel.setLayout(new BorderLayout(0, 0));
+        final JPanel panel1 = new JPanel();
+        panel1.setLayout(new GridBagLayout());
+        panel1.setAutoscrolls(true);
+        panel1.setPreferredSize(new Dimension(700, 400));
+        mainPanel.add(panel1, BorderLayout.CENTER);
+        panel1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), null));
+        outputScrollPane = new JScrollPane();
+        GridBagConstraints gbc;
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        gbc.gridwidth = 4;
+        gbc.weighty = 5.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        panel1.add(outputScrollPane, gbc);
+        chatTextArea = new JTextArea();
+        chatTextArea.setEditable(false);
+        chatTextArea.setEnabled(false);
+        chatTextArea.setLineWrap(true);
+        chatTextArea.setText("");
+        outputScrollPane.setViewportView(chatTextArea);
+        connectButton = new JButton();
+        connectButton.setText("Start Server");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel1.add(connectButton, gbc);
+        disconnectButton = new JButton();
+        disconnectButton.setEnabled(false);
+        disconnectButton.setText("Disconnect");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel1.add(disconnectButton, gbc);
+        messageTextArea = new JTextField();
+        messageTextArea.setEnabled(false);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 6;
+        gbc.gridwidth = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel1.add(messageTextArea, gbc);
+        aliasTextField = new JTextField();
+        gbc = new GridBagConstraints();
+        gbc.gridx = 4;
+        gbc.gridy = 2;
+        gbc.weightx = 0.25;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        panel1.add(aliasTextField, gbc);
+        portTextField = new JTextField();
+        portTextField.setText("");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 4;
+        gbc.gridy = 1;
+        gbc.weightx = 0.25;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        panel1.add(portTextField, gbc);
+        hostTextField = new JTextField();
+        gbc = new GridBagConstraints();
+        gbc.gridx = 4;
+        gbc.gridy = 0;
+        gbc.weightx = 0.25;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        panel1.add(hostTextField, gbc);
+        portLabel = new JLabel();
+        portLabel.setText("Port: ");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 3;
+        gbc.gridy = 1;
+        gbc.weightx = 0.2;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.insets = new Insets(0, 5, 0, 0);
+        panel1.add(portLabel, gbc);
+        aliasLabel = new JLabel();
+        aliasLabel.setText("Alias: ");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 2;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.insets = new Insets(0, 5, 0, 0);
+        panel1.add(aliasLabel, gbc);
+        sendButton = new JButton();
+        sendButton.setEnabled(true);
+        sendButton.setText("Connect");
+        sendButton.setToolTipText("Connect to <Host> on port <Port> with the name <Alias>");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 4;
+        gbc.gridy = 3;
+        gbc.weightx = 0.25;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        panel1.add(sendButton, gbc);
+        hostLabel = new JLabel();
+        hostLabel.setText("Host: ");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        gbc.weightx = 0.2;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.insets = new Insets(0, 5, 0, 0);
+        panel1.add(hostLabel, gbc);
+        sendMessageButton = new JButton();
+        sendMessageButton.setEnabled(false);
+        sendMessageButton.setText("Send");
+        sendMessageButton.setToolTipText("Disconnect from group server and file server");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 4;
+        gbc.gridy = 7;
+        gbc.weightx = 0.25;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        panel1.add(sendMessageButton, gbc);
+        chatAreaLabel = new JLabel();
+        chatAreaLabel.setText("Chat:");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.SOUTHWEST;
+        panel1.add(chatAreaLabel, gbc);
+        messageLabel = new JLabel();
+        messageLabel.setText("Message:");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel1.add(messageLabel, gbc);
     }
 
     /**
