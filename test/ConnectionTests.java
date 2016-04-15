@@ -7,11 +7,9 @@ import static org.mockito.Mockito.when;
 public class ConnectionTests {
     @Test
     public void connectTestFailedConnection() {
-        Client c = new Session();
-        Connection conn = mock(Connection.class);
-        when(conn.connect()).thenReturn(false);
+        Connection c = new ServerConnection("",0);
 
-        assertFalse(c.connect(conn));
+        assertFalse(c.connect());
     }
 
 }
