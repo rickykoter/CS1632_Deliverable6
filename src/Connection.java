@@ -1,6 +1,6 @@
 public interface Connection {
-    boolean send(Message message);
-    Message receive();  // blocks
+    boolean send(Object object);
+    Object receive();
     boolean connect();
     boolean disconnect();
     boolean isOpen();

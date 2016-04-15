@@ -14,12 +14,12 @@ public class ServerConnection implements Connection{
         port = portNumber;
     }
     @Override
-    public boolean send(Message message) {
+    public boolean send(Object message) {
         return false;
     }
 
     @Override
-    public Message receive() {
+    public Object receive() {
         return null;
     }
 
