@@ -3,7 +3,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.io.PrintStream;
 
 public class ChatApp extends JFrame {
@@ -12,27 +11,27 @@ public class ChatApp extends JFrame {
     private JTextField portTextField;
     private JLabel portLabel;
     private JLabel hostLabel;
-    private JButton sendButton;
+    public JButton connectButton;
     private JLabel aliasLabel;
     private JTextField aliasTextField;
     private JScrollPane outputScrollPane;
     private JTextArea chatTextArea;
-    private JButton sendMessageButton;
-    private JButton connectButton;
-    private JButton disconnectButton;
+    public JButton sendMessageButton;
+    public JButton startServerButton;
+    public JButton disconnectButton;
     private JTextField messageTextArea;
     private JLabel messageLabel;
     private JLabel chatAreaLabel;
     private Client client;
 
-    public ChatApp() {
+    public ChatApp(Client c) {
         System.setOut(new PrintStream(new TextAreaOutputStream(chatTextArea)));
-        client = new Session();
+        client = c;
         aliasTextField.setText(client.getAlias());
 
-        connectButton.addActionListener(new ActionListener() {
+        startServerButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String result = connectToServer();
+                String result = connectToServer(hostTextField.getText(), portTextField.getText());
                 if (result.length() > 0) {
                     System.out.println(result);
                 }
@@ -48,13 +47,13 @@ public class ChatApp extends JFrame {
         });
         sendMessageButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String result = sendMessageToServer();
+                String result = sendMessageToServer("");
                 if (result.length() > 0) {
                     System.out.println(result);
                 }
             }
         });
-        connectButton.addActionListener(new ActionListener() {
+        startServerButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String result = startServer();
                 if (result.length() > 0) {
@@ -64,25 +63,25 @@ public class ChatApp extends JFrame {
         });
     }
 
-    private String connectToServer() {
+    public String connectToServer(String hostName, String portNumber) {
         return null;
     }
 
-    private String disconnectFromServer() {
+    public String disconnectFromServer() {
         return null;
     }
 
-    private String sendMessageToServer() {
+    public String sendMessageToServer(String MessageText) {
         return null;
     }
 
-    private String startServer() {
+    public String startServer() {
         return null;
     }
 
     public static void main(String[] args) {
         setTheme();
-        ChatApp gui = new ChatApp();
+        ChatApp gui = new ChatApp(new Session());
         JFrame frame = new JFrame("Chat App");
         frame.setContentPane(gui.mainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -140,13 +139,13 @@ public class ChatApp extends JFrame {
         chatTextArea.setLineWrap(true);
         chatTextArea.setText("");
         outputScrollPane.setViewportView(chatTextArea);
-        connectButton = new JButton();
-        connectButton.setText("Start Server");
+        startServerButton = new JButton();
+        startServerButton.setText("Start Server");
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel1.add(connectButton, gbc);
+        panel1.add(startServerButton, gbc);
         disconnectButton = new JButton();
         disconnectButton.setEnabled(false);
         disconnectButton.setText("Disconnect");
@@ -210,17 +209,17 @@ public class ChatApp extends JFrame {
         gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(0, 5, 0, 0);
         panel1.add(aliasLabel, gbc);
-        sendButton = new JButton();
-        sendButton.setEnabled(true);
-        sendButton.setText("Connect");
-        sendButton.setToolTipText("Connect to <Host> on port <Port> with the name <Alias>");
+        connectButton = new JButton();
+        connectButton.setEnabled(true);
+        connectButton.setText("Connect");
+        connectButton.setToolTipText("Connect to <Host> on port <Port> with the name <Alias>");
         gbc = new GridBagConstraints();
         gbc.gridx = 4;
         gbc.gridy = 3;
         gbc.weightx = 0.25;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(5, 5, 5, 5);
-        panel1.add(sendButton, gbc);
+        panel1.add(connectButton, gbc);
         hostLabel = new JLabel();
         hostLabel.setText("Host: ");
         gbc = new GridBagConstraints();

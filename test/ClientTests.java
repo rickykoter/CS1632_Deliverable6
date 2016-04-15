@@ -1,10 +1,13 @@
 import org.junit.Test;
+
+import java.io.IOException;
+
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class ClientTests {
     @Test
-    public void connectTestFailedConnection() {
+    public void connectTestFailedConnection() throws IOException {
         Client c = new Session();
         Connection conn = mock(Connection.class);
         when(conn.connect()).thenReturn(false);
@@ -13,7 +16,7 @@ public class ClientTests {
     }
 
     @Test
-    public void connectTestSuccessfulConnection() {
+    public void connectTestSuccessfulConnection() throws IOException {
         Client c = new Session();
         Connection conn = mock(Connection.class);
         when(conn.connect()).thenReturn(true);
@@ -29,7 +32,7 @@ public class ClientTests {
     }
 
     @Test
-    public void isConnectedTestAfterSuccessfulConnection() {
+    public void isConnectedTestAfterSuccessfulConnection() throws IOException {
         Client c = new Session();
         Connection conn = mock(Connection.class);
         when(conn.connect()).thenReturn(true);
@@ -40,7 +43,7 @@ public class ClientTests {
     }
 
     @Test
-    public void isConnectedTestAfterFailedConnection() {
+    public void isConnectedTestAfterFailedConnection() throws IOException {
         Client c = new Session();
         Connection conn = mock(Connection.class);
         when(conn.connect()).thenReturn(false);
@@ -51,7 +54,7 @@ public class ClientTests {
     }
 
     @Test
-    public void isConnectedTestAfterConnectionClosed() {
+    public void isConnectedTestAfterConnectionClosed() throws IOException {
         Client c = new Session();
         Connection conn = mock(Connection.class);
         when(conn.connect()).thenReturn(true);
@@ -62,14 +65,14 @@ public class ClientTests {
     }
 
     @Test
-    public void disconnectTestFailureBeforeConnection() {
+    public void disconnectTestFailureBeforeConnection() throws IOException {
         Client c = new Session();
 
         assertFalse(c.disconnect());
     }
 
     @Test
-    public void disconnectTestSuccessAfterConnection() {
+    public void disconnectTestSuccessAfterConnection() throws IOException {
         Client c = new Session();
         Connection conn = mock(Connection.class);
         when(conn.connect()).thenReturn(true);
@@ -81,7 +84,7 @@ public class ClientTests {
     }
 
     @Test
-    public void disconnectTestFailureAfterConnection() {
+    public void disconnectTestFailureAfterConnection() throws IOException {
         Client c = new Session();
         Connection conn = mock(Connection.class);
         when(conn.connect()).thenReturn(true);
@@ -94,14 +97,14 @@ public class ClientTests {
 
 
     @Test
-    public void sendTestFailureBeforeConnection() {
+    public void sendTestFailureBeforeConnection() throws IOException {
         Client c = new Session();
 
         assertFalse(c.send(mock(Message.class)));
     }
 
     @Test
-    public void sendTestFailureAfterConnection() {
+    public void sendTestFailureAfterConnection() throws IOException {
         Client c = new Session();
         Message m = mock(Message.class);
         Connection conn = mock(Connection.class);
@@ -113,7 +116,7 @@ public class ClientTests {
     }
 
     @Test
-    public void sendTestSuccessAfterConnection() {
+    public void sendTestSuccessAfterConnection() throws IOException {
         Client c = new Session();
         Message m = mock(Message.class);
         Connection conn = mock(Connection.class);
