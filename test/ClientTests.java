@@ -24,6 +24,7 @@ public class ClientTests {
     @Test
     public void isConnectedTestInitial() {
         Client c = new Session();
+
         assertFalse(c.isConnected());
     }
 
@@ -32,6 +33,7 @@ public class ClientTests {
         Client c = new Session();
         Connection conn = mock(Connection.class);
         when(conn.connect()).thenReturn(true);
+        when(conn.isOpen()).thenReturn(true);
         c.connect(conn);
 
         assertTrue(c.isConnected());
@@ -42,6 +44,18 @@ public class ClientTests {
         Client c = new Session();
         Connection conn = mock(Connection.class);
         when(conn.connect()).thenReturn(false);
+        when(conn.isOpen()).thenReturn(true);
+        c.connect(conn);
+
+        assertFalse(c.isConnected());
+    }
+
+    @Test
+    public void isConnectedTestAfterConnectionClosed() {
+        Client c = new Session();
+        Connection conn = mock(Connection.class);
+        when(conn.connect()).thenReturn(true);
+        when(conn.isOpen()).thenReturn(false);
         c.connect(conn);
 
         assertFalse(c.isConnected());
@@ -59,6 +73,7 @@ public class ClientTests {
         Client c = new Session();
         Connection conn = mock(Connection.class);
         when(conn.connect()).thenReturn(true);
+        when(conn.isOpen()).thenReturn(true);
         when(conn.disconnect()).thenReturn(true);
         c.connect(conn);
 
@@ -70,6 +85,7 @@ public class ClientTests {
         Client c = new Session();
         Connection conn = mock(Connection.class);
         when(conn.connect()).thenReturn(true);
+        when(conn.isOpen()).thenReturn(false);
         when(conn.disconnect()).thenReturn(false);
         c.connect(conn);
 
@@ -103,6 +119,7 @@ public class ClientTests {
         Connection conn = mock(Connection.class);
         when(conn.connect()).thenReturn(true);
         when(conn.send(m)).thenReturn(true);
+        when(conn.isOpen()).thenReturn(true);
         c.connect(conn);
 
         assertTrue(c.send(m));

@@ -4,7 +4,6 @@ public interface Client {
     boolean disconnect();
     boolean send(Message message);
 
-
     String getAlias();
     boolean setAlias(String a);
 }

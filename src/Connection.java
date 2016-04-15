@@ -3,4 +3,5 @@ public interface Connection {
     Message receive();  // blocks
     boolean connect();
     boolean disconnect();
+    boolean isOpen();
 }
