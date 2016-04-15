@@ -1,4 +1,9 @@
-public interface Server {
-    void run();
-    void stop();
+public class Server {
+    public ConnectionThread getConnectionThread() {
+        return null;
+    }
+
+    public SenderThread getSenderThread() {
+        return null;
+    }
 }
