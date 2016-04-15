@@ -1,3 +1,4 @@
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -31,77 +32,52 @@ public class ChatApp extends JFrame {
 
         connectButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                connectToServer();
+                String result = connectToServer();
+                if (result.length() > 0) {
+                    System.out.println(result);
+                }
             }
         });
         disconnectButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                disconnectFromServer();
+                String result = disconnectFromServer();
+                if (result.length() > 0) {
+                    System.out.println(result);
+                }
             }
         });
         sendMessageButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                sendMessageToServer();
+                String result = sendMessageToServer();
+                if (result.length() > 0) {
+                    System.out.println(result);
+                }
             }
         });
         connectButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                startServer();
+                String result = startServer();
+                if (result.length() > 0) {
+                    System.out.println(result);
+                }
             }
         });
     }
 
-    private void connectToServer() {
-        try {
-            String host = hostTextField.getText();
-            String port = portTextField.getText();
-            boolean res = client.connect(
-                    new ServerConnection(host,
-                            Integer.parseInt(port)));
-            if (!res) {
-                System.out.println("Error: Connection was unable to be made to desired server!");
-            } else {
-                System.out.println("You have been successfully connected to " + host + " at port " + port + ".");
-            }
-        } catch (NumberFormatException e) {
-            System.out.println("Error: Port number is not an integer!");
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+    private String connectToServer() {
+        return null;
     }
 
-    private void disconnectFromServer() {
-        try {
-            boolean res = client.disconnect();
-            if (!res) {
-                System.out.println("Error: Connection was unable to be disconnected!");
-            } else {
-                System.out.println("You have been successfully disconnected.");
-            }
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+    private String disconnectFromServer() {
+        return null;
     }
 
-    private void sendMessageToServer() {
-        try {
-            String message = messageTextArea.getText();
-
-            /*boolean res = client.send();
-            if (!res) {
-                System.out.println("Error: Message was unable to be sent!");
-            }*/
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+    private String sendMessageToServer() {
+        return null;
     }
 
-    private void startServer() {
-        try {
-            
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+    private String startServer() {
+        return null;
     }
 
     public static void main(String[] args) {
