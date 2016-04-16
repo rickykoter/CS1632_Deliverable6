@@ -9,17 +9,17 @@ public class ServerConnection implements Connection{
     private String server;
     private int port;
 
-    public ServerConnection(String serverAddress, int portNumber){
-        server = serverAddress;
-        port = portNumber;
+    public ServerConnection(Socket s){
+        server = s.getRemoteSocketAddress().toString();
+        port = s.getPort();
     }
     @Override
-    public boolean send(Message message) {
+    public boolean send(Object message) {
         return false;
     }
 
     @Override
-    public Message receive() {
+    public Object receive() {
         return null;
     }
 
