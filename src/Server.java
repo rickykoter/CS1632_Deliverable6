@@ -1,13 +1,15 @@
+import com.sun.javaws.exceptions.InvalidArgumentException;
+
 import java.util.Collection;
 import java.util.Queue;
 import java.util.Set;
 
-public class Server {
+public class Server implements Runnable {
     private Connection connectionWatch;
     private Set<Connection> connectedClients;
     private Queue<Message> unsentMessages;
 
-    public Server(Connection connectionWatch, Set<Connection> connectedClients, Queue<Message> unsentMessages) {
+    public Server(Connection connectionWatch, Set<Connection> connectedClients, Queue<Message> unsentMessages) throws InvalidArgumentException {
 
     }
 
@@ -20,6 +22,7 @@ public class Server {
     }
 
     // Starts the server
+    @Override
     public void run() {
 
     }
@@ -30,7 +33,7 @@ public class Server {
     }
 
     // Sends a message to all connectedClients
-    public void sendMessage(Message message) {
+    public void sendMessage(Message message) throws InvalidArgumentException {
     }
 
     // Adds new connections to and removes disconnected clients from connectedClients
