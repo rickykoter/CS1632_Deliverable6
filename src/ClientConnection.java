@@ -1,13 +1,15 @@
+import com.sun.javaws.exceptions.InvalidArgumentException;
+
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Socket;
+import java.nio.channels.AsynchronousSocketChannel;
 
 public class ClientConnection implements Connection {
-    private Socket socket;
+    private AsynchronousSocketChannel socket;
     private InputStream input;
     private OutputStream output;
 
-    public ClientConnection(Socket socket, InputStream inputStream, OutputStream outputStream) {
+    public ClientConnection(AsynchronousSocketChannel socket, InputStream inputStream, OutputStream outputStream) throws InvalidArgumentException {
 
     }
 
