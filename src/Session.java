@@ -21,7 +21,7 @@ public class Session implements Client{
         }
     }
 
-    public boolean isConnected() {
+    public synchronized boolean isConnected() {
         if(_connection == null || !_connection.isOpen()){
             return false;
         } else {
@@ -29,7 +29,7 @@ public class Session implements Client{
         }
     }
 
-    public boolean disconnect() {
+    public synchronized boolean disconnect() {
         if(isConnected()){
             boolean res =_connection.disconnect();
             _connection = null;
@@ -61,7 +61,7 @@ public class Session implements Client{
     }
 
     public void beginReceiving() {
-        _crt.run();
+        _crt.start();
     }
 
     private class ClientReceiveThread extends Thread {

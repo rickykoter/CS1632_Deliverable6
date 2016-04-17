@@ -1,9 +1,12 @@
 
+import javax.net.SocketFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.net.Socket;
 
 public class ChatApp extends JFrame {
     private JPanel mainPanel;
@@ -23,13 +26,15 @@ public class ChatApp extends JFrame {
     private JLabel messageLabel;
     private JLabel chatAreaLabel;
     private Client client;
+    private SocketFactory socketFactory;
 
-    public ChatApp(Client c) {
+    public ChatApp(Client c, SocketFactory sf) {
         System.setOut(new PrintStream(new TextAreaOutputStream(chatTextArea)));
         client = c;
         aliasTextField.setText(client.getAlias());
+        socketFactory = sf;
 
-        startServerButton.addActionListener(new ActionListener() {
+        connectButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String result = connectToServer(hostTextField.getText(), portTextField.getText());
                 if (result.length() > 0) {
@@ -47,7 +52,7 @@ public class ChatApp extends JFrame {
         });
         sendMessageButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String result = sendMessageToServer("");
+                String result = sendMessageToServer(messageTextArea.getText());
                 if (result.length() > 0) {
                     System.out.println(result);
                 }
@@ -64,15 +69,66 @@ public class ChatApp extends JFrame {
     }
 
     public String connectToServer(String hostName, String portNumber) {
-        return null;
+        if (client == null) {
+            client = new Session();
+        }
+        int port;
+        try {
+            port = Integer.parseInt(portNumber);
+        } catch (NumberFormatException e) {
+            connectButton.setEnabled(true);
+            disconnectButton.setEnabled(false);
+            sendMessageButton.setEnabled(false);
+            return "Error: Port is not a number!";
+        }
+        try {
+            Socket s = socketFactory.createSocket(hostName, port);
+            ChatInputStream ci = (ChatInputStream) s.getInputStream();
+            ChatOutputStream co = (ChatOutputStream) s.getOutputStream();
+            Connection c = new ServerConnection(s, co, ci);
+
+            if (!client.connect(c)) {
+                connectButton.setEnabled(true);
+                disconnectButton.setEnabled(false);
+                sendMessageButton.setEnabled(false);
+                return "Error: Unable to connect to desired host and port!";
+            }
+        } catch (IOException e) {
+            connectButton.setEnabled(true);
+            disconnectButton.setEnabled(false);
+            sendMessageButton.setEnabled(false);
+            return "Error: Unable to connect to desired host and port!";
+        }
+
+        connectButton.setEnabled(false);
+        disconnectButton.setEnabled(true);
+        sendMessageButton.setEnabled(true);
+        return "You have been successfully connected to " + hostName + " at port " + portNumber + ".";
     }
 
     public String disconnectFromServer() {
-        return null;
+        if (client.isConnected() && client.disconnect()) {
+            connectButton.setEnabled(true);
+            disconnectButton.setEnabled(false);
+            sendMessageButton.setEnabled(false);
+            return "You have been successfully disconnected.";
+        } else {
+            connectButton.setEnabled(false);
+            disconnectButton.setEnabled(true);
+            sendMessageButton.setEnabled(true);
+            return "Error: You were unable to be disconnected!";
+        }
     }
 
     public String sendMessageToServer(String MessageText) {
-        return null;
+        if (MessageText.length() <= 0) {
+            return "Error: Please provide text to send!";
+        }
+        if (client.isConnected() && client.send(new Message(client.getAlias(), MessageText))) {
+            return "";
+        } else {
+            return "Error: Unable to send message to the server!";
+        }
     }
 
     public String startServer() {
@@ -81,7 +137,7 @@ public class ChatApp extends JFrame {
 
     public static void main(String[] args) {
         setTheme();
-        ChatApp gui = new ChatApp(new Session());
+        ChatApp gui = new ChatApp(new Session(), SocketFactory.getDefault());
         JFrame frame = new JFrame("Chat App");
         frame.setContentPane(gui.mainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
