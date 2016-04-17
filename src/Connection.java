@@ -1,7 +1,8 @@
+import java.io.IOException;
+
 public interface Connection {
-    boolean send(Object object);
-    Object receive();
-    boolean connect();
-    boolean disconnect();
+    boolean send(Object message);
+    Object receive() throws IOException, ClassNotFoundException;  // blocks
     boolean isOpen();
+    boolean disconnect();
 }

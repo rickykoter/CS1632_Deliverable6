@@ -1,15 +1,19 @@
+import java.io.IOException;
 
 public class Session implements Client{
     private Connection _connection;
     private String _alias;
+    private ClientReceiveThread _crt;
+
     public Session(){
         _connection = null;
         _alias = "Anonymous";
+        _crt = new ClientReceiveThread();
     }
 
     public boolean connect(Connection connection) {
-        if(connection.connect()){
-            _connection = connection;
+        if(connection != null && connection.isOpen()){
+             _connection = connection;
             return true;
         } else {
             _connection = null;
@@ -27,7 +31,9 @@ public class Session implements Client{
 
     public boolean disconnect() {
         if(isConnected()){
-            return _connection.disconnect();
+            boolean res =_connection.disconnect();
+            _connection = null;
+            return res;
         } else {
             return false;
         }
@@ -51,6 +57,31 @@ public class Session implements Client{
         } else {
             _alias = a;
             return true;
+        }
+    }
+
+    public void beginReceiving() {
+        _crt.run();
+    }
+
+    private class ClientReceiveThread extends Thread {
+        @Override
+        public void run() {
+            while(isConnected()){
+                try{
+                    Object o = _connection.receive();
+                    if(o != null){
+                        Message m = (Message) o;
+                        System.out.println(m.getSender() + ": " + m.getText());
+                    }
+                } catch (ClassCastException e){
+                    System.out.println("Error - Message unable to be displayed: "+ e.getMessage());
+                } catch (Exception e) {
+                    System.out.println("Disconnected - Client Thread Failed: "+ e.getMessage());
+                    disconnect();
+                    break;
+                }
+            }
         }
     }
 }
