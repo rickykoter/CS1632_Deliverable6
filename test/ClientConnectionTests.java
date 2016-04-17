@@ -1,3 +1,4 @@
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
@@ -9,12 +10,25 @@ import static org.mockito.Mockito.*;
 
 public class ClientConnectionTests {
     AsynchronousSocketChannel asc = mock(AsynchronousSocketChannel.class);
+
     final int buffSize = 10;
     byte[] inputBuffer = new byte[buffSize];
     InputStream is = new ByteArrayInputStream(inputBuffer);
+    ObjectInputStream ois;
+
     byte[] emptyInputBuffer = new byte[0];
     InputStream empty = new ByteArrayInputStream(emptyInputBuffer);
+    ObjectInputStream emptyOis;
+
     ByteArrayOutputStream os = new ByteArrayOutputStream();
+    ObjectOutputStream oos;
+
+    @Before
+    public void setup() throws IOException {
+        oos = new ObjectOutputStream(os);
+        ois = new ObjectInputStream(is);
+        emptyOis = new ObjectInputStream(empty);
+    }
 
     // <editor-fold desc="constructor">
     @Test
@@ -26,19 +40,19 @@ public class ClientConnectionTests {
         }
 
         try {
-            new ClientConnection(asc, is, null);
+            new ClientConnection(asc, ois, null);
             fail();
         } catch(IllegalArgumentException expected) {
         }
 
         try {
-            new ClientConnection(null, is, os);
+            new ClientConnection(null, ois, oos);
             fail();
         } catch(IllegalArgumentException expected) {
         }
 
         try {
-            new ClientConnection(asc, null, os);
+            new ClientConnection(asc, null, oos);
             fail();
         } catch(IllegalArgumentException expected) {
         }
@@ -47,7 +61,7 @@ public class ClientConnectionTests {
     @Test
     public void constructorValidArgumentsSuccessful() {
         try {
-            new ClientConnection(asc, is, os);
+            new ClientConnection(asc, ois, oos);
         } catch(IllegalArgumentException fail) {
             fail();
         }
@@ -57,7 +71,7 @@ public class ClientConnectionTests {
     // <editor-fold desc="send">
     @Test
     public void sendWritesToOutputStream() throws IOException, IllegalArgumentException {
-        Connection c = new ClientConnection(asc, is, os);
+        Connection c = new ClientConnection(asc, ois, oos);
         BigInteger expected = new BigInteger("5");
         c.send(expected);
 
@@ -68,7 +82,7 @@ public class ClientConnectionTests {
 
     @Test
     public void sendNullArgumentThrowsException() throws IllegalArgumentException {
-        Connection c = new ClientConnection(asc, is, os);
+        Connection c = new ClientConnection(asc, ois, oos);
         try {
             c.send(null);
             fail();
@@ -80,14 +94,14 @@ public class ClientConnectionTests {
     // <editor-fold desc="receive">
     @Test
     public void receiveNullIfNoNew() throws IllegalArgumentException, IOException, ClassNotFoundException {
-        Connection c = new ClientConnection(asc, empty, os);
+        Connection c = new ClientConnection(asc, emptyOis, oos);
         Object actual = c.receive();
         assertNull(actual);
     }
 
     @Test
     public void receiveValidIfNew() throws IllegalArgumentException, IOException, ClassNotFoundException {
-        Connection c = new ClientConnection(asc, is, os);
+        Connection c = new ClientConnection(asc, ois, oos);
         Object actual = c.receive();
         assertNotNull(actual);
     }
@@ -95,51 +109,18 @@ public class ClientConnectionTests {
     @Test
     public void receiveMultipleIfMultiple() throws IllegalArgumentException, IOException, ClassNotFoundException {
         is.mark(buffSize / 2);
-        Connection c = new ClientConnection(asc, is, os);
+        Connection c = new ClientConnection(asc, ois, oos);
         c.receive();
         Object actual = c.receive();
         assertNotNull(actual);
     }
     // </editor-fold>
 
-    // <editor-fold desc="connect">
-    @Test
-    public void connectTrueIfSuccess() throws IllegalArgumentException {
-        ClientConnection c = new ClientConnection(asc, is, os);
-        boolean isConnected = c.connect();
-        if(isConnected) {
-            assertTrue(c.isOpen());
-        } else {
-            fail();
-        }
-    }
-
-    @Test
-    public void connectFalseIfFail() throws IllegalArgumentException {
-        ClientConnection c = new ClientConnection(asc, is, os);
-        boolean isConnected = c.connect();
-        if(!isConnected) {
-            assertFalse(c.isOpen());
-        } else {
-            fail();
-        }
-    }
-
-    @Test
-    public void connectMultipleTimesOk() throws IllegalArgumentException {
-        ClientConnection c = new ClientConnection(asc, is, os);
-        c.connect();
-        c.connect();
-        c.disconnect();
-    }
-    // </editor-fold>
-
     // <editor-fold desc="disconnect">
     @Test
     public void disconnectTrueIfSuccess() throws IllegalArgumentException {
-        ClientConnection c = new ClientConnection(asc, is, os);
-        boolean isConnected = c.connect();
-        if(isConnected) {
+        ClientConnection c = new ClientConnection(asc, ois, oos);
+        if(c.isOpen()) {
             if(c.disconnect()) {
                 assertFalse(c.isOpen());
             } else {
@@ -152,9 +133,8 @@ public class ClientConnectionTests {
 
     @Test
     public void disconnectFalseIfFail() throws IllegalArgumentException {
-        ClientConnection c = new ClientConnection(asc, is, os);
-        boolean isConnected = c.connect();
-        if(isConnected) {
+        ClientConnection c = new ClientConnection(asc, ois, oos);
+        if(c.isOpen()) {
             if(!c.disconnect()) {
                 assertTrue(c.isOpen());
             } else {
@@ -167,8 +147,7 @@ public class ClientConnectionTests {
 
     @Test
     public void disconnectMultipleTimesOk() throws IllegalArgumentException {
-        ClientConnection c = new ClientConnection(asc, is, os);
-        c.connect();
+        ClientConnection c = new ClientConnection(asc, ois, oos);
         c.disconnect();
         c.disconnect();
     }
