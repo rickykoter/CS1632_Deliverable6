@@ -36,7 +36,7 @@ public class ChatApp extends JFrame {
 
         connectButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String result = connectToServer(hostTextField.getText(), portTextField.getText());
+                String result = connectToServer(hostTextField.getText(), portTextField.getText(), aliasTextField.getText());
                 if (result.length() > 0) {
                     System.out.println(result);
                 }
@@ -68,9 +68,15 @@ public class ChatApp extends JFrame {
         });
     }
 
-    public String connectToServer(String hostName, String portNumber) {
+    public String connectToServer(String hostName, String portNumber, String alias) {
         if (client == null) {
             client = new Session();
+        }
+        if (!client.setAlias(alias)) {
+            connectButton.setEnabled(true);
+            disconnectButton.setEnabled(false);
+            sendMessageButton.setEnabled(false);
+            return "Error: Alias is invalid. Must be between 1 and 15 characters.";
         }
         int port;
         try {

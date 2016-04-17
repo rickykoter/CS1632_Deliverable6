@@ -1,5 +1,3 @@
-import java.io.IOException;
-
 public class Session implements Client{
     private Connection _connection;
     private String _alias;
@@ -60,8 +58,9 @@ public class Session implements Client{
         }
     }
 
-    public void beginReceiving() {
-        _crt.start();
+    public Thread beginReceiving() {
+         _crt.start();
+        return _crt;
     }
 
     private class ClientReceiveThread extends Thread {
