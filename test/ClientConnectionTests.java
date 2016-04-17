@@ -1,4 +1,3 @@
-import com.sun.javaws.exceptions.InvalidArgumentException;
 import org.junit.Test;
 
 import java.io.*;
@@ -17,30 +16,31 @@ public class ClientConnectionTests {
     InputStream empty = new ByteArrayInputStream(emptyInputBuffer);
     ByteArrayOutputStream os = new ByteArrayOutputStream();
 
+    // <editor-fold desc="constructor">
     @Test
     public void constructorNullArgumentsThrowException() {
         try {
             new ClientConnection(null, null, null);
             fail();
-        } catch(InvalidArgumentException expected) {
+        } catch(IllegalArgumentException expected) {
         }
 
         try {
             new ClientConnection(asc, is, null);
             fail();
-        } catch(InvalidArgumentException expected) {
+        } catch(IllegalArgumentException expected) {
         }
 
         try {
             new ClientConnection(null, is, os);
             fail();
-        } catch(InvalidArgumentException expected) {
+        } catch(IllegalArgumentException expected) {
         }
 
         try {
             new ClientConnection(asc, null, os);
             fail();
-        } catch(InvalidArgumentException expected) {
+        } catch(IllegalArgumentException expected) {
         }
     }
 
@@ -48,13 +48,15 @@ public class ClientConnectionTests {
     public void constructorValidArgumentsSuccessful() {
         try {
             new ClientConnection(asc, is, os);
-        } catch(InvalidArgumentException fail) {
+        } catch(IllegalArgumentException fail) {
             fail();
         }
     }
+    // </editor-fold>
 
+    // <editor-fold desc="send">
     @Test
-    public void sendWritesToOutputStream() throws IOException, InvalidArgumentException {
+    public void sendWritesToOutputStream() throws IOException, IllegalArgumentException {
         Connection c = new ClientConnection(asc, is, os);
         BigInteger expected = new BigInteger("5");
         c.send(expected);
@@ -65,7 +67,7 @@ public class ClientConnectionTests {
     }
 
     @Test
-    public void sendNullArgumentThrowsException() throws InvalidArgumentException {
+    public void sendNullArgumentThrowsException() throws IllegalArgumentException {
         Connection c = new ClientConnection(asc, is, os);
         try {
             c.send(null);
@@ -73,32 +75,36 @@ public class ClientConnectionTests {
         } catch(Exception expected) {
         }
     }
+    // </editor-fold>
 
+    // <editor-fold desc="receive">
     @Test
-    public void receiveNullIfNoNew() throws InvalidArgumentException {
+    public void receiveNullIfNoNew() throws IllegalArgumentException {
         Connection c = new ClientConnection(asc, empty, os);
         Object actual = c.receive();
         assertNull(actual);
     }
 
     @Test
-    public void receiveValidIfNew() throws InvalidArgumentException {
+    public void receiveValidIfNew() throws IllegalArgumentException {
         Connection c = new ClientConnection(asc, is, os);
         Object actual = c.receive();
         assertNotNull(actual);
     }
 
     @Test
-    public void receiveMultipleIfMultiple() throws InvalidArgumentException {
+    public void receiveMultipleIfMultiple() throws IllegalArgumentException {
         is.mark(buffSize / 2);
         Connection c = new ClientConnection(asc, is, os);
         c.receive();
         Object actual = c.receive();
         assertNotNull(actual);
     }
+    // </editor-fold>
 
+    // <editor-fold desc="connect">
     @Test
-    public void connectTrueIfSuccess() throws InvalidArgumentException {
+    public void connectTrueIfSuccess() throws IllegalArgumentException {
         Connection c = new ClientConnection(asc, is, os);
         boolean isConnected = c.connect();
         if(isConnected) {
@@ -109,7 +115,7 @@ public class ClientConnectionTests {
     }
 
     @Test
-    public void connectFalseIfFail() throws InvalidArgumentException {
+    public void connectFalseIfFail() throws IllegalArgumentException {
         Connection c = new ClientConnection(asc, is, os);
         boolean isConnected = c.connect();
         if(!isConnected) {
@@ -120,15 +126,17 @@ public class ClientConnectionTests {
     }
 
     @Test
-    public void multipleConnectOk() throws InvalidArgumentException {
+    public void connectMultipleTimesOk() throws IllegalArgumentException {
         Connection c = new ClientConnection(asc, is, os);
         c.connect();
         c.connect();
         c.disconnect();
     }
+    // </editor-fold>
 
+    // <editor-fold desc="disconnect">
     @Test
-    public void disconnectTrueIfSuccess() throws InvalidArgumentException {
+    public void disconnectTrueIfSuccess() throws IllegalArgumentException {
         Connection c = new ClientConnection(asc, is, os);
         boolean isConnected = c.connect();
         if(isConnected) {
@@ -143,7 +151,7 @@ public class ClientConnectionTests {
     }
 
     @Test
-    public void disconnectFalseIfFail() throws InvalidArgumentException {
+    public void disconnectFalseIfFail() throws IllegalArgumentException {
         Connection c = new ClientConnection(asc, is, os);
         boolean isConnected = c.connect();
         if(isConnected) {
@@ -158,10 +166,11 @@ public class ClientConnectionTests {
     }
 
     @Test
-    public void multipleDisconnectOk() throws InvalidArgumentException {
+    public void disconnectMultipleTimesOk() throws IllegalArgumentException {
         Connection c = new ClientConnection(asc, is, os);
         c.connect();
         c.disconnect();
         c.disconnect();
     }
+    // </editor-fold>
 }

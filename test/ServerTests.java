@@ -2,8 +2,6 @@ import org.junit.Test;
 
 import java.util.*;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
-
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -18,25 +16,25 @@ public class ServerTests {
         try {
             new Server(null, null, null);
             fail();
-        } catch(InvalidArgumentException expected) {
+        } catch(IllegalArgumentException expected) {
         }
 
         try {
             new Server(connectionWatch, connectedClients, null);
             fail();
-        } catch(InvalidArgumentException expected) {
+        } catch(IllegalArgumentException expected) {
         }
 
         try {
             new Server(null, connectedClients, unsentMessages);
             fail();
-        } catch(InvalidArgumentException expected) {
+        } catch(IllegalArgumentException expected) {
         }
 
         try {
             new Server(connectionWatch, null, unsentMessages);
             fail();
-        } catch(InvalidArgumentException expected) {
+        } catch(IllegalArgumentException expected) {
         }
     }
 
@@ -44,7 +42,7 @@ public class ServerTests {
     public void constructorValidArgumentsSuccessful() {
         try {
             new Server(connectionWatch, connectedClients, unsentMessages);
-        } catch(InvalidArgumentException fail) {
+        } catch(IllegalArgumentException fail) {
             fail();
         }
     }
@@ -52,10 +50,10 @@ public class ServerTests {
 
     // <editor-fold desc="stop">
     @Test(timeout=5000)
-    public void stopStopsServerWithNoConnections() throws InterruptedException, InvalidArgumentException {
+    public void stopStopsServerWithNoConnections() throws InterruptedException {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Thread t = new Thread(server);
-        server.run();
+        t.start();
 
         server.stop();
 
@@ -63,7 +61,7 @@ public class ServerTests {
     }
 
     @Test(timeout=5000)
-    public void stopStopsServerWithConnections() throws InvalidArgumentException, InterruptedException {
+    public void stopStopsServerWithConnections() throws InterruptedException {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         connectedClients.add(mock(Connection.class));
         connectedClients.add(mock(Connection.class));
@@ -72,7 +70,7 @@ public class ServerTests {
         unsentMessages.add(mock(Message.class));
         unsentMessages.add(mock(Message.class));
         Thread t = new Thread(server);
-        server.run();
+        t.start();
 
         server.stop();
 
@@ -82,17 +80,17 @@ public class ServerTests {
 
     // <editor-fold desc="sendMessage">
     @Test
-    public void sendMessageNullArgumentThrowsException() throws InvalidArgumentException {
+    public void sendMessageNullArgumentThrowsException() {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         try {
             server.sendMessage(null);
             fail();
-        } catch(InvalidArgumentException expected) {
+        } catch(IllegalArgumentException expected) {
         }
     }
 
     @Test
-    public void sendMessageSendsToAllConnectedClients() throws InvalidArgumentException {
+    public void sendMessageSendsToAllConnectedClients() {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnectionA = mock(Connection.class);
         Connection mockConnectionB = mock(Connection.class);
@@ -109,7 +107,7 @@ public class ServerTests {
 
     // <editor-fold desc="checkForConnections">
     @Test
-    public void checkForConnectionsDoesNotAddIfNoNew() throws InvalidArgumentException {
+    public void checkForConnectionsDoesNotAddIfNoNew() {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         when(connectionWatch.receive()).thenReturn(null);
 
@@ -119,10 +117,10 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForConnectionsAddsConnectionIfNew() throws InvalidArgumentException {
+    public void checkForConnectionsAddsConnectionIfNew() {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnection = mock(Connection.class);
-        when(connectionWatch.receive()).thenReturn(mockConnection);
+        when(connectionWatch.receive()).thenReturn(mockConnection).thenReturn(null);
 
         server.checkForConnections();
 
@@ -130,10 +128,10 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForConnectionsAddsConnectionIfNewSizeCorrect() throws InvalidArgumentException {
+    public void checkForConnectionsAddsConnectionIfNewSizeCorrect() {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnection = mock(Connection.class);
-        when(connectionWatch.receive()).thenReturn(mockConnection);
+        when(connectionWatch.receive()).thenReturn(mockConnection).thenReturn(null);
 
         server.checkForConnections();
 
@@ -141,11 +139,13 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForConnectionsAddsMultipleConnectionsIfMultiple() throws InvalidArgumentException {
+    public void checkForConnectionsAddsMultipleConnectionsIfMultiple() {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnectionA = mock(Connection.class);
+        when(mockConnectionA.isOpen()).thenReturn(true);
         Connection mockConnectionB = mock(Connection.class);
-        when(connectionWatch.receive()).thenReturn(mockConnectionA).thenReturn(mockConnectionB);
+        when(mockConnectionB.isOpen()).thenReturn(true);
+        when(connectionWatch.receive()).thenReturn(mockConnectionA, mockConnectionB, null);
 
         server.checkForConnections();
         server.checkForConnections();
@@ -155,11 +155,13 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForConnectionsAddsMultipleConnectionsIfMultipleSizeCorrect() throws InvalidArgumentException {
+    public void checkForConnectionsAddsMultipleConnectionsIfMultipleSizeCorrect() {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnectionA = mock(Connection.class);
+        when(mockConnectionA.isOpen()).thenReturn(true);
         Connection mockConnectionB = mock(Connection.class);
-        when(connectionWatch.receive()).thenReturn(mockConnectionA).thenReturn(mockConnectionB);
+        when(mockConnectionB.isOpen()).thenReturn(true);
+        when(connectionWatch.receive()).thenReturn(mockConnectionA, mockConnectionB, null);
 
         server.checkForConnections();
         server.checkForConnections();
@@ -168,7 +170,7 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForConnectionsRemovesDisconnectedClients() throws InvalidArgumentException {
+    public void checkForConnectionsRemovesDisconnectedClients() {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnectionA = mock(Connection.class);
         when(mockConnectionA.isOpen()).thenReturn(false);
@@ -186,7 +188,7 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForConnectionsRemovesDisconnectedClientsSizeCorrect() throws InvalidArgumentException {
+    public void checkForConnectionsRemovesDisconnectedClientsSizeCorrect() {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnectionA = mock(Connection.class);
         when(mockConnectionA.isOpen()).thenReturn(false);
@@ -204,7 +206,7 @@ public class ServerTests {
 
     // <editor-fold desc="checkForNewMessages">
     @Test
-    public void checkForNewMessagesDoesNotAddIfNoNew() throws InvalidArgumentException {
+    public void checkForNewMessagesDoesNotAddIfNoNew() {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnection = mock(Connection.class);
         when(mockConnection.receive()).thenReturn(null);
@@ -216,11 +218,11 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForNewMessagesAddsConnectionIfNew() throws InvalidArgumentException {
+    public void checkForNewMessagesAddsConnectionIfNew() {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnection = mock(Connection.class);
         Message mockMessage = mock(Message.class);
-        when(mockConnection.receive()).thenReturn(mockMessage);
+        when(mockConnection.receive()).thenReturn(mockMessage).thenReturn(null);
         connectedClients.add(mockConnection);
 
         server.checkForMessages();
@@ -229,11 +231,11 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForNewMessagesAddsConnectionIfNewSizeCorrect() throws InvalidArgumentException {
+    public void checkForNewMessagesAddsConnectionIfNewSizeCorrect() {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnection = mock(Connection.class);
         Message mockMessage = mock(Message.class);
-        when(mockConnection.receive()).thenReturn(mockMessage);
+        when(mockConnection.receive()).thenReturn(mockMessage).thenReturn(null);
         connectedClients.add(mockConnection);
 
         server.checkForMessages();
@@ -242,12 +244,12 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForNewMessagesAddsMultipleConnectionsIfMultiple() throws InvalidArgumentException {
+    public void checkForNewMessagesAddsMultipleConnectionsIfMultiple() {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnection = mock(Connection.class);
         Message mockMessageA = mock(Message.class);
         Message mockMessageB = mock(Message.class);
-        when(mockConnection.receive()).thenReturn(mockMessageA).thenReturn(mockMessageB);
+        when(mockConnection.receive()).thenReturn(mockMessageA, mockMessageB, null);
         connectedClients.add(mockConnection);
 
         server.checkForMessages();
@@ -258,12 +260,12 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForNewMessagesAddsMultipleConnectionsIfMultipleSizeCorrect() throws InvalidArgumentException {
+    public void checkForNewMessagesAddsMultipleConnectionsIfMultipleSizeCorrect() {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnection = mock(Connection.class);
         Message mockMessageA = mock(Message.class);
         Message mockMessageB = mock(Message.class);
-        when(mockConnection.receive()).thenReturn(mockMessageA).thenReturn(mockMessageB);
+        when(mockConnection.receive()).thenReturn(mockMessageA, mockMessageB, null);
         connectedClients.add(mockConnection);
 
         server.checkForMessages();

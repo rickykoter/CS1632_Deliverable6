@@ -1,5 +1,3 @@
-import com.sun.javaws.exceptions.InvalidArgumentException;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -9,7 +7,7 @@ public class ClientConnection implements Connection {
     private InputStream input;
     private OutputStream output;
 
-    public ClientConnection(AsynchronousSocketChannel socket, InputStream inputStream, OutputStream outputStream) throws InvalidArgumentException {
+    public ClientConnection(AsynchronousSocketChannel socket, InputStream inputStream, OutputStream outputStream) throws IllegalArgumentException {
 
     }
 
