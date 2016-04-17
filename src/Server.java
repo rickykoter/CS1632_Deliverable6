@@ -84,20 +84,30 @@ public class Server implements Runnable {
     }
 
     private void addNewConnections() {
-        Connection c = (Connection)connectionWatch.receive();
+        Connection c = safeReceive(connectionWatch);
         while(c != null) {
             getConnectedClients().add(c);
-            c = (Connection)connectionWatch.receive();
+            c = safeReceive(connectionWatch);
         }
+    }
+
+    private static <T> T safeReceive(Connection connection) {
+        T receivedData = null;
+        try {
+            receivedData = (T)connection.receive();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return receivedData;
     }
 
     // Checks for new messages and adds any new messages to unsentQueue
     public void checkForMessages() {
         for(Connection c : getConnectedClients()) {
-            Message m = (Message)c.receive();
+            Message m = safeReceive(c);
             while(m != null) {
                 getUnsentMessages().add(m);
-                m = (Message)c.receive();
+                m = safeReceive(c);
             }
         }
     }

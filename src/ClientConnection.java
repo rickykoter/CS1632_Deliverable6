@@ -21,7 +21,6 @@ public class ClientConnection implements Connection {
         return null;
     }
 
-    @Override
     public boolean connect() {
         return false;
     }

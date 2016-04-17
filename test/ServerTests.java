@@ -1,5 +1,6 @@
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -107,7 +108,7 @@ public class ServerTests {
 
     // <editor-fold desc="checkForConnections">
     @Test
-    public void checkForConnectionsDoesNotAddIfNoNew() {
+    public void checkForConnectionsDoesNotAddIfNoNew() throws IOException, ClassNotFoundException {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         when(connectionWatch.receive()).thenReturn(null);
 
@@ -117,7 +118,7 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForConnectionsAddsConnectionIfNew() {
+    public void checkForConnectionsAddsConnectionIfNew() throws IOException, ClassNotFoundException {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnection = mock(Connection.class);
         when(connectionWatch.receive()).thenReturn(mockConnection).thenReturn(null);
@@ -128,7 +129,7 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForConnectionsAddsConnectionIfNewSizeCorrect() {
+    public void checkForConnectionsAddsConnectionIfNewSizeCorrect() throws IOException, ClassNotFoundException {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnection = mock(Connection.class);
         when(connectionWatch.receive()).thenReturn(mockConnection).thenReturn(null);
@@ -139,7 +140,7 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForConnectionsAddsMultipleConnectionsIfMultiple() {
+    public void checkForConnectionsAddsMultipleConnectionsIfMultiple() throws IOException, ClassNotFoundException {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnectionA = mock(Connection.class);
         when(mockConnectionA.isOpen()).thenReturn(true);
@@ -155,7 +156,7 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForConnectionsAddsMultipleConnectionsIfMultipleSizeCorrect() {
+    public void checkForConnectionsAddsMultipleConnectionsIfMultipleSizeCorrect() throws IOException, ClassNotFoundException {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnectionA = mock(Connection.class);
         when(mockConnectionA.isOpen()).thenReturn(true);
@@ -206,7 +207,7 @@ public class ServerTests {
 
     // <editor-fold desc="checkForNewMessages">
     @Test
-    public void checkForNewMessagesDoesNotAddIfNoNew() {
+    public void checkForNewMessagesDoesNotAddIfNoNew() throws IOException, ClassNotFoundException {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnection = mock(Connection.class);
         when(mockConnection.receive()).thenReturn(null);
@@ -218,7 +219,7 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForNewMessagesAddsConnectionIfNew() {
+    public void checkForNewMessagesAddsConnectionIfNew() throws IOException, ClassNotFoundException {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnection = mock(Connection.class);
         Message mockMessage = mock(Message.class);
@@ -231,7 +232,7 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForNewMessagesAddsConnectionIfNewSizeCorrect() {
+    public void checkForNewMessagesAddsConnectionIfNewSizeCorrect() throws IOException, ClassNotFoundException {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnection = mock(Connection.class);
         Message mockMessage = mock(Message.class);
@@ -244,7 +245,7 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForNewMessagesAddsMultipleConnectionsIfMultiple() {
+    public void checkForNewMessagesAddsMultipleConnectionsIfMultiple() throws IOException, ClassNotFoundException {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnection = mock(Connection.class);
         Message mockMessageA = mock(Message.class);
@@ -260,7 +261,7 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForNewMessagesAddsMultipleConnectionsIfMultipleSizeCorrect() {
+    public void checkForNewMessagesAddsMultipleConnectionsIfMultipleSizeCorrect() throws IOException, ClassNotFoundException {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnection = mock(Connection.class);
         Message mockMessageA = mock(Message.class);

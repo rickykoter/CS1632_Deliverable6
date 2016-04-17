@@ -79,21 +79,21 @@ public class ClientConnectionTests {
 
     // <editor-fold desc="receive">
     @Test
-    public void receiveNullIfNoNew() throws IllegalArgumentException {
+    public void receiveNullIfNoNew() throws IllegalArgumentException, IOException, ClassNotFoundException {
         Connection c = new ClientConnection(asc, empty, os);
         Object actual = c.receive();
         assertNull(actual);
     }
 
     @Test
-    public void receiveValidIfNew() throws IllegalArgumentException {
+    public void receiveValidIfNew() throws IllegalArgumentException, IOException, ClassNotFoundException {
         Connection c = new ClientConnection(asc, is, os);
         Object actual = c.receive();
         assertNotNull(actual);
     }
 
     @Test
-    public void receiveMultipleIfMultiple() throws IllegalArgumentException {
+    public void receiveMultipleIfMultiple() throws IllegalArgumentException, IOException, ClassNotFoundException {
         is.mark(buffSize / 2);
         Connection c = new ClientConnection(asc, is, os);
         c.receive();
@@ -105,7 +105,7 @@ public class ClientConnectionTests {
     // <editor-fold desc="connect">
     @Test
     public void connectTrueIfSuccess() throws IllegalArgumentException {
-        Connection c = new ClientConnection(asc, is, os);
+        ClientConnection c = new ClientConnection(asc, is, os);
         boolean isConnected = c.connect();
         if(isConnected) {
             assertTrue(c.isOpen());
@@ -116,7 +116,7 @@ public class ClientConnectionTests {
 
     @Test
     public void connectFalseIfFail() throws IllegalArgumentException {
-        Connection c = new ClientConnection(asc, is, os);
+        ClientConnection c = new ClientConnection(asc, is, os);
         boolean isConnected = c.connect();
         if(!isConnected) {
             assertFalse(c.isOpen());
@@ -127,7 +127,7 @@ public class ClientConnectionTests {
 
     @Test
     public void connectMultipleTimesOk() throws IllegalArgumentException {
-        Connection c = new ClientConnection(asc, is, os);
+        ClientConnection c = new ClientConnection(asc, is, os);
         c.connect();
         c.connect();
         c.disconnect();
@@ -137,7 +137,7 @@ public class ClientConnectionTests {
     // <editor-fold desc="disconnect">
     @Test
     public void disconnectTrueIfSuccess() throws IllegalArgumentException {
-        Connection c = new ClientConnection(asc, is, os);
+        ClientConnection c = new ClientConnection(asc, is, os);
         boolean isConnected = c.connect();
         if(isConnected) {
             if(c.disconnect()) {
@@ -152,7 +152,7 @@ public class ClientConnectionTests {
 
     @Test
     public void disconnectFalseIfFail() throws IllegalArgumentException {
-        Connection c = new ClientConnection(asc, is, os);
+        ClientConnection c = new ClientConnection(asc, is, os);
         boolean isConnected = c.connect();
         if(isConnected) {
             if(!c.disconnect()) {
@@ -167,7 +167,7 @@ public class ClientConnectionTests {
 
     @Test
     public void disconnectMultipleTimesOk() throws IllegalArgumentException {
-        Connection c = new ClientConnection(asc, is, os);
+        ClientConnection c = new ClientConnection(asc, is, os);
         c.connect();
         c.disconnect();
         c.disconnect();
