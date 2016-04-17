@@ -11,6 +11,9 @@ public class ServerConnection implements Connection{
     private int port;
 
     public ServerConnection(Socket s, ChatOutputStream cos, ChatInputStream cis){
+        if(s == null || cos == null || cis == null){
+            throw new IllegalArgumentException();
+        }
         output = cos;
         input = cis;
         socket = s;

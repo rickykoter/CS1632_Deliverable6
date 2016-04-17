@@ -7,9 +7,51 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 public class ConnectionTests {
+    @Test
+    public void constructorNullArgumentsThrowException() {
+        Socket s = mock(Socket.class);
+        ChatInputStream cis = mock(ChatInputStream.class);
+        ChatOutputStream cos = mock(ChatOutputStream.class);
+        try {
+            new ServerConnection(null, null, null);
+            fail();
+        } catch(IllegalArgumentException expected) {
+        }
 
+        try {
+            new ServerConnection(s, cos, null);
+            fail();
+        } catch(IllegalArgumentException expected) {
+        }
+
+        try {
+            new ServerConnection(null, cos, cis);
+            fail();
+        } catch(IllegalArgumentException expected) {
+        }
+
+        try {
+            new ServerConnection(s, null, cis);
+            fail();
+        } catch(IllegalArgumentException expected) {
+        }
+    }
 
     @Test
+    public void constructorValidArguments() {
+        Socket s = mock(Socket.class);
+        ChatInputStream cis = mock(ChatInputStream.class);
+        ChatOutputStream cos = mock(ChatOutputStream.class);
+        try {
+            new ServerConnection(s, cos, cis);
+
+        } catch(IllegalArgumentException expected) {
+            fail();
+        }
+    }
+
+
+        @Test
     public void sendTestSuccess() throws IOException {
         Message m = mock(Message.class);
         Socket s = mock(Socket.class);
