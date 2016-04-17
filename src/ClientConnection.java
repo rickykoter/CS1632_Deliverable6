@@ -3,10 +3,10 @@ import java.nio.channels.AsynchronousSocketChannel;
 
 public class ClientConnection implements Connection {
     private AsynchronousSocketChannel socket;
-    private ObjectInputStream input;
-    private ObjectOutputStream output;
+    private ChatInputStream input;
+    private ChatOutputStream output;
 
-    public ClientConnection(AsynchronousSocketChannel socket, ObjectInputStream inputStream, ObjectOutputStream outputStream) throws IllegalArgumentException {
+    public ClientConnection(AsynchronousSocketChannel socket, ChatInputStream inputStream, ChatOutputStream outputStream) throws IllegalArgumentException {
         if(socket == null || inputStream == null || outputStream == null) { throw new IllegalArgumentException("No arguments can be null"); }
         this.socket = socket;
         this.input = inputStream;
@@ -16,9 +16,9 @@ public class ClientConnection implements Connection {
     @Override
     public boolean send(Object object) {
         boolean success = false;
-        if(isOpen()) {
+        if(isOpen() && object != null) {
             try {
-                output.writeObject(object);
+                output.writeMessage(object);
                 success = true;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -32,7 +32,7 @@ public class ClientConnection implements Connection {
         Object data = null;
         try {
             if(isOpen() && input.available() > 0) {
-                data = input.readObject();
+                data = input.readMessage();
             }
         } catch (Exception e) {
             e.printStackTrace();
