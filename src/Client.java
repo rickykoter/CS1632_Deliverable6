@@ -5,6 +5,7 @@ public interface Client {
     boolean isConnected();
     boolean disconnect() throws IOException;
     boolean send(Message message) throws IOException;
+    void beginReceiving();
 
     String getAlias();
     boolean setAlias(String a);

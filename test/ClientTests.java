@@ -1,16 +1,18 @@
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class ClientTests {
     @Test
-    public void connectTestFailedConnection() throws IOException {
+    public void connectTestFailedConnectionNotOpen() throws IOException {
         Client c = new Session();
         Connection conn = mock(Connection.class);
-        when(conn.connect()).thenReturn(false);
+        when(conn.isOpen()).thenReturn(false);
 
         assertFalse(c.connect(conn));
     }
@@ -19,7 +21,7 @@ public class ClientTests {
     public void connectTestSuccessfulConnection() throws IOException {
         Client c = new Session();
         Connection conn = mock(Connection.class);
-        when(conn.connect()).thenReturn(true);
+        when(conn.isOpen()).thenReturn(true);
 
         assertTrue(c.connect(conn));
     }
@@ -35,7 +37,6 @@ public class ClientTests {
     public void isConnectedTestAfterSuccessfulConnection() throws IOException {
         Client c = new Session();
         Connection conn = mock(Connection.class);
-        when(conn.connect()).thenReturn(true);
         when(conn.isOpen()).thenReturn(true);
         c.connect(conn);
 
@@ -43,12 +44,10 @@ public class ClientTests {
     }
 
     @Test
-    public void isConnectedTestAfterFailedConnection() throws IOException {
+    public void isConnectedTestAfterNullConnection() throws IOException {
         Client c = new Session();
         Connection conn = mock(Connection.class);
-        when(conn.connect()).thenReturn(false);
-        when(conn.isOpen()).thenReturn(true);
-        c.connect(conn);
+        c.connect(null);
 
         assertFalse(c.isConnected());
     }
@@ -57,7 +56,6 @@ public class ClientTests {
     public void isConnectedTestAfterConnectionClosed() throws IOException {
         Client c = new Session();
         Connection conn = mock(Connection.class);
-        when(conn.connect()).thenReturn(true);
         when(conn.isOpen()).thenReturn(false);
         c.connect(conn);
 
@@ -75,7 +73,6 @@ public class ClientTests {
     public void disconnectTestSuccessAfterConnection() throws IOException {
         Client c = new Session();
         Connection conn = mock(Connection.class);
-        when(conn.connect()).thenReturn(true);
         when(conn.isOpen()).thenReturn(true);
         when(conn.disconnect()).thenReturn(true);
         c.connect(conn);
@@ -87,7 +84,6 @@ public class ClientTests {
     public void disconnectTestFailureAfterConnection() throws IOException {
         Client c = new Session();
         Connection conn = mock(Connection.class);
-        when(conn.connect()).thenReturn(true);
         when(conn.isOpen()).thenReturn(false);
         when(conn.disconnect()).thenReturn(false);
         c.connect(conn);
@@ -108,7 +104,6 @@ public class ClientTests {
         Client c = new Session();
         Message m = mock(Message.class);
         Connection conn = mock(Connection.class);
-        when(conn.connect()).thenReturn(true);
         when(conn.send(m)).thenReturn(false);
         c.connect(conn);
 
@@ -120,7 +115,6 @@ public class ClientTests {
         Client c = new Session();
         Message m = mock(Message.class);
         Connection conn = mock(Connection.class);
-        when(conn.connect()).thenReturn(true);
         when(conn.send(m)).thenReturn(true);
         when(conn.isOpen()).thenReturn(true);
         c.connect(conn);
@@ -164,6 +158,56 @@ public class ClientTests {
 
         assertFalse(c.setAlias("1234567891234567"));
         assertEquals("Anonymous", c.getAlias());
+    }
+
+    @Test
+    public void beginReceivingTestNoException() throws IOException, ClassNotFoundException {
+        Client c = new Session();
+        Message m = mock(Message.class);
+        Connection conn = mock(Connection.class);
+        when(conn.receive()).thenReturn(m);
+        when(conn.isOpen()).thenReturn(true);
+        c.connect(conn);
+
+        final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2);
+        executor.schedule(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    c.disconnect();
+                } catch (IOException e) {
+                    fail("Error " + e.getMessage());
+                }
+                //pass
+            }
+        }, 1, TimeUnit.SECONDS);
+
+        c.beginReceiving();
+
+    }
+
+    @Test
+    public void beginReceivingTestException() throws IOException, ClassNotFoundException {
+        Client c = new Session();
+        Connection conn = mock(Connection.class);
+        when(conn.receive()).thenThrow(new IOException());
+        when(conn.isOpen()).thenReturn(true);
+        c.connect(conn);
+
+        final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2);
+        executor.schedule(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    c.disconnect();
+                } catch (IOException e) {
+                    fail("Error " + e.getMessage());
+                }
+                fail("Error - exception did not stop thread.");
+            }
+        }, 1, TimeUnit.SECONDS);
+        c.beginReceiving();
+        //pass
     }
 
 }

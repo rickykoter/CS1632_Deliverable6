@@ -1,3 +1,4 @@
+import java.io.IOException;
 
 public class Session implements Client{
     private Connection _connection;
@@ -11,9 +12,8 @@ public class Session implements Client{
     }
 
     public boolean connect(Connection connection) {
-        if(connection.connect()){
-            _connection = connection;
-            _crt.run();
+        if(connection != null && connection.isOpen()){
+             _connection = connection;
             return true;
         } else {
             _connection = null;
@@ -31,8 +31,9 @@ public class Session implements Client{
 
     public boolean disconnect() {
         if(isConnected()){
+            boolean res =_connection.disconnect();
             _connection = null;
-            return _connection.disconnect();
+            return res;
         } else {
             return false;
         }
@@ -57,6 +58,10 @@ public class Session implements Client{
             _alias = a;
             return true;
         }
+    }
+
+    public void beginReceiving() {
+        _crt.run();
     }
 
     private class ClientReceiveThread extends Thread {
