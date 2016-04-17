@@ -173,12 +173,7 @@ public class ClientTests {
         executor.schedule(new Runnable() {
             @Override
             public void run() {
-                try {
-                    c.disconnect();
-                } catch (IOException e) {
-                    fail("Error " + e.getMessage());
-                }
-                //pass
+                if(!c.disconnect()) fail("Error!");
             }
         }, 1, TimeUnit.SECONDS);
 
@@ -198,12 +193,8 @@ public class ClientTests {
         executor.schedule(new Runnable() {
             @Override
             public void run() {
-                try {
-                    c.disconnect();
-                } catch (IOException e) {
-                    fail("Error " + e.getMessage());
-                }
-                fail("Error - exception did not stop thread.");
+                if(!c.disconnect()) return;
+                fail("Error - exception did not cause failure to disconnect.");
             }
         }, 1, TimeUnit.SECONDS);
         c.beginReceiving();

@@ -1,10 +1,10 @@
 import java.io.IOException;
 
 public interface Client {
-    boolean connect(Connection connection) throws IOException;
+    boolean connect(Connection connection);
     boolean isConnected();
-    boolean disconnect() throws IOException;
-    boolean send(Message message) throws IOException;
+    boolean disconnect();
+    boolean send(Message message);
     void beginReceiving();
 
     String getAlias();
