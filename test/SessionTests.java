@@ -2,7 +2,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;

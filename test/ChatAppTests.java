@@ -197,5 +197,4 @@ public class ChatAppTests {
         String res = ca.sendMessageToServer("");
         assertEquals("Error: Please provide text to send!", res);
     }
-
 }

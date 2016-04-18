@@ -1,12 +1,6 @@
 import org.junit.Test;
 
-import java.io.IOException;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class MessageTest {
     @Test
@@ -38,9 +32,4 @@ public class MessageTest {
         Message m = new Message("", "");
         assertEquals("", m.getText());
     }
-
-
-
-
-
 }

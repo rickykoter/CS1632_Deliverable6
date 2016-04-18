@@ -112,6 +112,7 @@ public class ChatApp extends JFrame {
         disconnectButton.setEnabled(true);
         sendMessageButton.setEnabled(true);
         messageTextArea.setEnabled(true);
+
         client.beginReceiving();
         return "You have been successfully connected to " + hostName + " at port " + portNumber + ".";
     }

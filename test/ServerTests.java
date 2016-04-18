@@ -1,12 +1,8 @@
 import org.junit.Test;
 
 import java.io.IOException;
-import java.nio.channels.AsynchronousServerSocketChannel;
-import java.nio.channels.SocketChannel;
-import java.nio.channels.ServerSocketChannel;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
