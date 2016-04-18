@@ -124,7 +124,8 @@ public class ChatApp extends JFrame {
             disconnectButton.setEnabled(false);
             sendMessageButton.setEnabled(false);
             messageTextArea.setEnabled(false);
-
+            startServerButton.setEnabled(true);
+            client = null;
             if (server != null) {
                 server.stop();
                 server = null;
@@ -182,6 +183,7 @@ public class ChatApp extends JFrame {
         disconnectButton.setEnabled(true);
         sendMessageButton.setEnabled(true);
         messageTextArea.setEnabled(true);
+        startServerButton.setEnabled(false);
 
         return connectToServer("127.0.0.1", Integer.toString(port), alias);
     }
