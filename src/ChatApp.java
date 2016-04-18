@@ -38,7 +38,7 @@ public class ChatApp extends JFrame {
         socketFactory = sf;
 
         connectButton.addActionListener(e -> {
-            String result = connectToServer(hostTextField.getText(), portTextField.getText());
+            String result = connectToServer(hostTextField.getText(), portTextField.getText(), aliasTextField.getText());
             if (result.length() > 0) {
                 System.out.println(result);
             }
@@ -59,16 +59,22 @@ public class ChatApp extends JFrame {
         });
 
         startServerButton.addActionListener(e -> {
-            String result = startServer(hostTextField.getText(), portTextField.getText());
+            String result = startServer(hostTextField.getText(), portTextField.getText(), aliasTextField.getText());
             if (result.length() > 0) {
                 System.out.println(result);
             }
         });
     }
 
-    public String connectToServer(String hostName, String portNumber) {
+    public String connectToServer(String hostName, String portNumber, String alias) {
         if (client == null) {
             client = new Session();
+        }
+        if (!client.setAlias(alias)) {
+            connectButton.setEnabled(true);
+            disconnectButton.setEnabled(false);
+            sendMessageButton.setEnabled(false);
+            return "Error: Alias is invalid. Must be between 1 and 15 characters.";
         }
         int port;
         try {
@@ -142,7 +148,7 @@ public class ChatApp extends JFrame {
         }
     }
 
-    public String startServer(String hostName, String portNumber) {
+    public String startServer(String hostName, String portNumber, String alias) {
         connectButton.setEnabled(true);
         disconnectButton.setEnabled(false);
         sendMessageButton.setEnabled(false);
@@ -175,7 +181,7 @@ public class ChatApp extends JFrame {
         sendMessageButton.setEnabled(true);
         messageTextArea.setEnabled(true);
 
-        return connectToServer("127.0.0.1", Integer.toString(port));
+        return connectToServer("127.0.0.1", Integer.toString(port), alias);
     }
 
     public static void main(String[] args) {

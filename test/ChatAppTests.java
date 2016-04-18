@@ -39,13 +39,13 @@ public class ChatAppTests {
     }
 
     @Test
-    public void connectToServerTestValidString() throws IOException {
+    public void connectToServerTestValid() throws IOException {
         Client c = mock(Client.class);
-        Connection cn = mock(Connection.class);
+        when(c.setAlias("FooBar")).thenReturn(true);
         when(c.connect(any(Connection.class))).thenReturn(true);
         ChatApp ca = new ChatApp(c, sf);
 
-        String res = ca.connectToServer("foo.bar.0", "0");
+        String res = ca.connectToServer("foo.bar.0", "0", "FooBar");
         assertEquals("You have been successfully connected to foo.bar.0 at port 0.", res);
         assertTrue(ca.startServerButton.isEnabled());
         assertTrue(ca.disconnectButton.isEnabled());
@@ -54,12 +54,41 @@ public class ChatAppTests {
     }
 
     @Test
+    public void connectToServerTestInValidAliasEmpty() throws IOException {
+        Client c = mock(Client.class);
+        when(c.setAlias("FooBar")).thenReturn(true);
+        when(c.connect(any(Connection.class))).thenReturn(true);
+        ChatApp ca = new ChatApp(c, sf);
+
+        String res = ca.connectToServer("foo.bar.0", "0", "");
+        assertEquals("Error: Alias is invalid. Must be between 1 and 15 characters.", res);
+        assertTrue(ca.connectButton.isEnabled());
+        assertFalse(ca.disconnectButton.isEnabled());
+        assertFalse(ca.sendMessageButton.isEnabled());
+    }
+
+    @Test
+    public void connectToServerTestInValidAliasOver15() throws IOException {
+        Client c = mock(Client.class);
+        when(c.setAlias("123456789123456")).thenReturn(false);
+        when(c.connect(any(Connection.class))).thenReturn(true);
+        ChatApp ca = new ChatApp(c, sf);
+
+        String res = ca.connectToServer("foo.bar.0", "0", "123456789123456");
+        assertEquals("Error: Alias is invalid. Must be between 1 and 15 characters.", res);
+        assertTrue(ca.connectButton.isEnabled());
+        assertFalse(ca.disconnectButton.isEnabled());
+        assertFalse(ca.sendMessageButton.isEnabled());
+    }
+
+    @Test
     public void connectToServerTestFailedConnection() throws IOException {
         Client c = mock(Client.class);
+        when(c.setAlias("FooBar")).thenReturn(true);
         when(c.connect(any(Connection.class))).thenReturn(false);
         ChatApp ca = new ChatApp(c, sf);
 
-        String res = ca.connectToServer("foo.bar.0", "0");
+        String res = ca.connectToServer("foo.bar.0", "0", "FooBar");
         assertEquals("Error: Unable to connect to desired host and port!", res);
         assertTrue(ca.connectButton.isEnabled());
         assertFalse(ca.disconnectButton.isEnabled());
@@ -70,6 +99,7 @@ public class ChatAppTests {
     public void connectToServerTestIOExceptionHandling() throws IOException {
         Client c = mock(Client.class);
         Socket s = mock(Socket.class);
+        when(c.setAlias("FooBar")).thenReturn(true);
         when(s.getInputStream()).thenReturn(mock(ChatInputStream.class));
         when(s.getOutputStream()).thenReturn(mock(ChatOutputStream.class));
 
@@ -78,7 +108,7 @@ public class ChatAppTests {
 
         ChatApp ca = new ChatApp(c,sf2);
 
-        String res = ca.connectToServer("foo.bar.0", "0");
+        String res = ca.connectToServer("foo.bar.0", "0", "FooBar");
         assertEquals("Error: Unable to connect to desired host and port!", res);
         assertTrue(ca.connectButton.isEnabled());
         assertFalse(ca.disconnectButton.isEnabled());
@@ -88,10 +118,10 @@ public class ChatAppTests {
     @Test
     public void connectToServerTestPortNotANumber() throws IOException {
         Client c = mock(Client.class);
-
+        when(c.setAlias("FooBar")).thenReturn(true);
         ChatApp ca = new ChatApp(c, sf);
 
-        String res = ca.connectToServer("in.valid.0", "a12");
+        String res = ca.connectToServer("in.valid.0", "a12", "FooBar");
         assertEquals("Error: Port is not a number!", res);
         assertTrue(ca.connectButton.isEnabled());
         assertFalse(ca.disconnectButton.isEnabled());
