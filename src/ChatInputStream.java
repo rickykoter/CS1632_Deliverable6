@@ -9,6 +9,6 @@ public class ChatInputStream extends ObjectInputStream{
     }
 
     public Object readMessage() throws IOException, ClassNotFoundException {
-        return this.readUnshared();
+        return this.readObject();
     }
 }

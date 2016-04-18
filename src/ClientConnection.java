@@ -31,7 +31,7 @@ public class ClientConnection implements Connection {
     }
 
     @Override
-    public synchronized boolean send(Object object) {
+    public boolean send(Object object) {
         boolean success = false;
         if(isOpen() && object != null) {
             try {
@@ -45,7 +45,7 @@ public class ClientConnection implements Connection {
     }
 
     @Override
-    public synchronized Object receive() {
+    public Object receive() {
         Object data = null;
         try {
             if(isOpen()) {  //  && input.available() > 0
@@ -58,7 +58,7 @@ public class ClientConnection implements Connection {
     }
 
     @Override
-    public synchronized boolean disconnect() {
+    public boolean disconnect() {
         boolean success = false;
         try {
             input.close();
@@ -71,7 +71,7 @@ public class ClientConnection implements Connection {
     }
 
     @Override
-    public synchronized boolean isOpen() {
+    public boolean isOpen() {
         return socket.isOpen();
     }
 }

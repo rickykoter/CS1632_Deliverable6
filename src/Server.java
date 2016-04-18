@@ -10,6 +10,8 @@ public class Server implements Runnable {
     private Queue<Message> unsentMessages;
     private Object messagesLock = new Object();
     private boolean running = true;
+    Thread senderThread = null;
+    Thread connectionThread = null;
 
     public Server(ClientConnectionRunner connectionWatch, Set<Connection> connectedClients, Queue<Message> unsentMessages) throws IllegalArgumentException {
         if(connectionWatch == null || connectedClients == null || unsentMessages == null) {
@@ -18,8 +20,20 @@ public class Server implements Runnable {
         this.connectionWatch = connectionWatch;
         this.connectedClients = connectedClients;
         this.unsentMessages = unsentMessages;
+    }
 
-        Thread senderThread = new Thread() {
+    public Collection<Connection> getConnectedClients() {
+        return connectedClients;
+    }
+
+    public Collection<Message> getUnsentMessages() {
+        return unsentMessages;
+    }
+
+    // Starts the server
+    @Override
+    public void run() {
+        senderThread = new Thread() {
             public void run() {
                 while(isRunning()) {
                     Message message;
@@ -34,7 +48,7 @@ public class Server implements Runnable {
                         }
                     } while(moreMessages);
                     try {
-                        sleep(100);
+                        sleep(50);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -43,12 +57,12 @@ public class Server implements Runnable {
         };
         senderThread.start();
 
-        Thread connectionThread = new Thread() {
+        connectionThread = new Thread() {
             public void run() {
                 while(isRunning()) {
                     checkForConnections();
                     try {
-                        sleep(100);
+                        sleep(50);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -56,31 +70,6 @@ public class Server implements Runnable {
             }
         };
         connectionThread.start();
-    }
-
-    public Collection<Connection> getConnectedClients() {
-        return connectedClients;
-    }
-
-    public Collection<Message> getUnsentMessages() {
-        return unsentMessages;
-    }
-
-    // Starts the server
-    @Override
-    public void run() {
-        while(isRunning()) {
-            checkForConnections();
-            checkForMessages();
-            for(Message unsent : getUnsentMessages()) {
-                try {
-                    sendMessage(unsent);
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
-                }
-            }
-            getUnsentMessages().clear();
-        }
     }
 
     private synchronized boolean isRunning() {
@@ -146,7 +135,7 @@ public class Server implements Runnable {
                             }
                         }
                         try {
-                            sleep(100);
+                            sleep(50);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }

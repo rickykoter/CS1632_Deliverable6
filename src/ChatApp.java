@@ -170,8 +170,7 @@ public class ChatApp extends JFrame {
             ServerSocketChannel serverSocketChannel = ServerSocketChannel.open().bind(hostAddress);
             ClientConnectionRunner connectionWatch = new ClientConnectionRunner(serverSocketChannel);
             server = new Server(connectionWatch, new HashSet<>(), new LinkedList<>());
-            Thread serverThread = new Thread(server);
-            serverThread.start();
+            server.run();
         } catch (Exception e) {
             return "Error: Unable to host on desired host and port!";
         }
