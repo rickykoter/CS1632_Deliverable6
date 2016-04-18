@@ -59,7 +59,7 @@ public class ChatClient implements Client{
     }
 
     public Thread beginReceiving() {
-         _crt.start();
+        _crt.start();
         return _crt;
     }
 

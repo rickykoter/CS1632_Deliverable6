@@ -205,9 +205,9 @@ public class ChatClientTests {
         final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2);
 
         Thread th = c.beginReceiving();
-        Thread.sleep(1000);
+        Thread.sleep(500);
         c.disconnect();
-        Thread.sleep(1000);
+        Thread.sleep(500);
         verify(conn, atLeast(1)).receive();
         if(th.isAlive()){
             fail("Receiver still alive.");
