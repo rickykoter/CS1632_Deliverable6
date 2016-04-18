@@ -22,7 +22,15 @@ public class ChatAppTests {
     public void setUp() throws IOException {
         MockitoAnnotations.initMocks(sf);
         Socket s = mock(Socket.class);
-        when(s.getInputStream()).thenReturn(mock(ChatInputStream.class));
+        InputStream is = mock(InputStream.class);
+        when(is.read()).thenReturn(1);
+        ByteArrayOutputStream bo = new ByteArrayOutputStream();
+        ObjectOutputStream co = new ObjectOutputStream(bo);
+        co.writeObject("FooBar");
+        byte[] ser = bo.toByteArray();
+        ByteArrayInputStream bi = new ByteArrayInputStream(ser);
+
+        when(s.getInputStream()).thenReturn(bi);
         when(s.getOutputStream()).thenReturn(mock(ChatOutputStream.class));
 
         when(sf.createSocket("foo.bar.0", 0)).thenReturn(s);
@@ -31,7 +39,9 @@ public class ChatAppTests {
     @Test
     public void constructorTestValidString() {
         Client c = mock(Client.class);
+
         ChatApp ca = new ChatApp(c,sf);
+
         assertTrue(ca.connectButton.isEnabled());
         assertFalse(ca.disconnectButton.isEnabled());
         assertFalse(ca.sendMessageButton.isEnabled());
@@ -43,6 +53,7 @@ public class ChatAppTests {
         Client c = mock(Client.class);
         when(c.setAlias("FooBar")).thenReturn(true);
         when(c.connect(any(Connection.class))).thenReturn(true);
+
         ChatApp ca = new ChatApp(c, sf);
 
         String res = ca.connectToServer("foo.bar.0", "0", "FooBar");
@@ -58,6 +69,7 @@ public class ChatAppTests {
         Client c = mock(Client.class);
         when(c.setAlias("FooBar")).thenReturn(true);
         when(c.connect(any(Connection.class))).thenReturn(true);
+
         ChatApp ca = new ChatApp(c, sf);
 
         String res = ca.connectToServer("foo.bar.0", "0", "");
@@ -72,6 +84,7 @@ public class ChatAppTests {
         Client c = mock(Client.class);
         when(c.setAlias("123456789123456")).thenReturn(false);
         when(c.connect(any(Connection.class))).thenReturn(true);
+
         ChatApp ca = new ChatApp(c, sf);
 
         String res = ca.connectToServer("foo.bar.0", "0", "123456789123456");
@@ -86,6 +99,7 @@ public class ChatAppTests {
         Client c = mock(Client.class);
         when(c.setAlias("FooBar")).thenReturn(true);
         when(c.connect(any(Connection.class))).thenReturn(false);
+
         ChatApp ca = new ChatApp(c, sf);
 
         String res = ca.connectToServer("foo.bar.0", "0", "FooBar");
@@ -102,7 +116,6 @@ public class ChatAppTests {
         when(c.setAlias("FooBar")).thenReturn(true);
         when(s.getInputStream()).thenReturn(mock(ChatInputStream.class));
         when(s.getOutputStream()).thenReturn(mock(ChatOutputStream.class));
-
         SocketFactory sf2 = mock(SocketFactory.class);
         when(sf2.createSocket(any(String.class), any(Integer.class))).thenThrow(new IOException());
 

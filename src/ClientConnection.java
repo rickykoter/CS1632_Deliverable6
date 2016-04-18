@@ -61,6 +61,7 @@ public class ClientConnection implements Connection {
     public synchronized boolean disconnect() {
         boolean success = false;
         try {
+            socket.close();
             input.close();
             output.close();
             success = true;

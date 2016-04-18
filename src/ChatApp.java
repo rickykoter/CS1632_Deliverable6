@@ -56,6 +56,7 @@ public class ChatApp extends JFrame {
             if (result.length() > 0) {
                 System.out.println(result);
             }
+            messageTextArea.setText("");
         });
 
         startServerButton.addActionListener(e -> {
@@ -270,6 +271,7 @@ public class ChatApp extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         panel1.add(messageTextArea, gbc);
         aliasTextField = new JTextField();
+        aliasTextField.setText("Anonymous");
         gbc = new GridBagConstraints();
         gbc.gridx = 4;
         gbc.gridy = 2;
@@ -279,7 +281,7 @@ public class ChatApp extends JFrame {
         gbc.insets = new Insets(5, 5, 5, 5);
         panel1.add(aliasTextField, gbc);
         portTextField = new JTextField();
-        portTextField.setText("");
+        portTextField.setText("8123");
         gbc = new GridBagConstraints();
         gbc.gridx = 4;
         gbc.gridy = 1;
@@ -289,6 +291,7 @@ public class ChatApp extends JFrame {
         gbc.insets = new Insets(5, 5, 5, 5);
         panel1.add(portTextField, gbc);
         hostTextField = new JTextField();
+        hostTextField.setText("127.0.0.1");
         gbc = new GridBagConstraints();
         gbc.gridx = 4;
         gbc.gridy = 0;
