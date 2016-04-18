@@ -1,20 +1,37 @@
 import java.io.*;
+import java.net.Socket;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.Channel;
+import java.nio.channels.Channels;
+import java.nio.channels.SocketChannel;
 
 public class ClientConnection implements Connection {
-    private AsynchronousSocketChannel socket;
+    private Channel socket;
     private ChatInputStream input;
     private ChatOutputStream output;
 
-    public ClientConnection(AsynchronousSocketChannel socket, ChatInputStream inputStream, ChatOutputStream outputStream) throws IllegalArgumentException {
+    public ClientConnection(Channel socket, ChatInputStream inputStream, ChatOutputStream outputStream) throws IllegalArgumentException {
         if(socket == null || inputStream == null || outputStream == null) { throw new IllegalArgumentException("No arguments can be null"); }
         this.socket = socket;
         this.input = inputStream;
         this.output = outputStream;
     }
 
+    public static ClientConnection create(SocketChannel socket) {
+        ClientConnection connection = null;
+        try {
+            ChatOutputStream cos = new ChatOutputStream(Channels.newOutputStream(socket));
+            cos.flush();
+            ChatInputStream cis = new ChatInputStream(Channels.newInputStream(socket));
+            connection = new ClientConnection(socket, cis, cos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return connection;
+    }
+
     @Override
-    public boolean send(Object object) {
+    public synchronized boolean send(Object object) {
         boolean success = false;
         if(isOpen() && object != null) {
             try {
@@ -28,10 +45,10 @@ public class ClientConnection implements Connection {
     }
 
     @Override
-    public Object receive() {
+    public synchronized Object receive() {
         Object data = null;
         try {
-            if(isOpen() && input.available() > 0) {
+            if(isOpen()) {  //  && input.available() > 0
                 data = input.readMessage();
             }
         } catch (Exception e) {
@@ -41,7 +58,7 @@ public class ClientConnection implements Connection {
     }
 
     @Override
-    public boolean disconnect() {
+    public synchronized boolean disconnect() {
         boolean success = false;
         try {
             input.close();
@@ -54,7 +71,7 @@ public class ClientConnection implements Connection {
     }
 
     @Override
-    public boolean isOpen() {
+    public synchronized boolean isOpen() {
         return socket.isOpen();
     }
 }

@@ -1,8 +1,3 @@
-import java.io.IOException;
-
-public interface Connection {
+public interface Connection extends ReadOnlyConnection {
     boolean send(Object message);
-    Object receive() throws IOException, ClassNotFoundException;  // blocks
-    boolean isOpen();
-    boolean disconnect();
 }

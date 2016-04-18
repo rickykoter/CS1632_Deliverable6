@@ -1,15 +1,20 @@
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.channels.AsynchronousServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.channels.ServerSocketChannel;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class ServerTests {
-    private Connection connectionWatch = mock(Connection.class);
-    private Set<Connection> connectedClients = new HashSet<Connection>();
-    private Queue<Message> unsentMessages = new LinkedList<Message>();
+    private ClientConnectionRunner connectionWatch = mock(ClientConnectionRunner.class);
+    private Set<Connection> connectedClients = new HashSet<>();
+    private Queue<Message> unsentMessages = new LinkedList<>();
 
     // <editor-fold desc="constructor">
     @Test
@@ -121,6 +126,7 @@ public class ServerTests {
     public void checkForConnectionsAddsConnectionIfNew() throws IOException, ClassNotFoundException {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnection = mock(Connection.class);
+        when(mockConnection.isOpen()).thenReturn(true).thenReturn(false);
         when(connectionWatch.receive()).thenReturn(mockConnection).thenReturn(null);
 
         server.checkForConnections();
@@ -132,6 +138,7 @@ public class ServerTests {
     public void checkForConnectionsAddsConnectionIfNewSizeCorrect() throws IOException, ClassNotFoundException {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnection = mock(Connection.class);
+        when(mockConnection.isOpen()).thenReturn(true).thenReturn(false);
         when(connectionWatch.receive()).thenReturn(mockConnection).thenReturn(null);
 
         server.checkForConnections();
@@ -140,10 +147,11 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForConnectionsAddsMultipleConnectionsIfMultiple() throws IOException, ClassNotFoundException {
+    public void checkForConnectionsAddsMultipleConnectionsIfMultiple() throws IOException, ClassNotFoundException, ExecutionException, InterruptedException {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnectionA = mock(Connection.class);
         when(mockConnectionA.isOpen()).thenReturn(true);
+
         Connection mockConnectionB = mock(Connection.class);
         when(mockConnectionB.isOpen()).thenReturn(true);
         when(connectionWatch.receive()).thenReturn(mockConnectionA, mockConnectionB, null);
@@ -156,10 +164,11 @@ public class ServerTests {
     }
 
     @Test
-    public void checkForConnectionsAddsMultipleConnectionsIfMultipleSizeCorrect() throws IOException, ClassNotFoundException {
+    public void checkForConnectionsAddsMultipleConnectionsIfMultipleSizeCorrect() throws IOException, ClassNotFoundException, ExecutionException, InterruptedException {
         Server server = new Server(connectionWatch, connectedClients, unsentMessages);
         Connection mockConnectionA = mock(Connection.class);
         when(mockConnectionA.isOpen()).thenReturn(true);
+
         Connection mockConnectionB = mock(Connection.class);
         when(mockConnectionB.isOpen()).thenReturn(true);
         when(connectionWatch.receive()).thenReturn(mockConnectionA, mockConnectionB, null);

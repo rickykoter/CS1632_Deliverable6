@@ -81,6 +81,11 @@ public class Session implements Client{
                     disconnect();
                     break;
                 }
+                try {
+                    sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

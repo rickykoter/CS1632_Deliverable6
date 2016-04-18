@@ -9,6 +9,7 @@ public class ChatOutputStream extends ObjectOutputStream{
     }
 
     public void writeMessage(Object o) throws IOException{
-        this.writeObject(o);
+        this.writeUnshared(o);
+        this.flush();
     }
 }

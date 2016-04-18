@@ -1,12 +1,14 @@
-
 import javax.net.SocketFactory;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.channels.ServerSocketChannel;
+import java.util.HashSet;
+import java.util.LinkedList;
 
 public class ChatApp extends JFrame {
     private JPanel mainPanel;
@@ -27,6 +29,7 @@ public class ChatApp extends JFrame {
     private JLabel chatAreaLabel;
     private Client client;
     private SocketFactory socketFactory;
+    private Server server;
 
     public ChatApp(Client c, SocketFactory sf) {
         System.setOut(new PrintStream(new TextAreaOutputStream(chatTextArea)));
@@ -34,36 +37,31 @@ public class ChatApp extends JFrame {
         aliasTextField.setText(client.getAlias());
         socketFactory = sf;
 
-        connectButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String result = connectToServer(hostTextField.getText(), portTextField.getText());
-                if (result.length() > 0) {
-                    System.out.println(result);
-                }
+        connectButton.addActionListener(e -> {
+            String result = connectToServer(hostTextField.getText(), portTextField.getText());
+            if (result.length() > 0) {
+                System.out.println(result);
             }
         });
-        disconnectButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String result = disconnectFromServer();
-                if (result.length() > 0) {
-                    System.out.println(result);
-                }
+
+        disconnectButton.addActionListener(e -> {
+            String result = disconnectFromServer();
+            if (result.length() > 0) {
+                System.out.println(result);
             }
         });
-        sendMessageButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String result = sendMessageToServer(messageTextArea.getText());
-                if (result.length() > 0) {
-                    System.out.println(result);
-                }
+
+        sendMessageButton.addActionListener(e -> {
+            String result = sendMessageToServer(messageTextArea.getText());
+            if (result.length() > 0) {
+                System.out.println(result);
             }
         });
-        startServerButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String result = startServer();
-                if (result.length() > 0) {
-                    System.out.println(result);
-                }
+
+        startServerButton.addActionListener(e -> {
+            String result = startServer(hostTextField.getText(), portTextField.getText());
+            if (result.length() > 0) {
+                System.out.println(result);
             }
         });
     }
@@ -79,30 +77,36 @@ public class ChatApp extends JFrame {
             connectButton.setEnabled(true);
             disconnectButton.setEnabled(false);
             sendMessageButton.setEnabled(false);
+            messageTextArea.setEnabled(false);
             return "Error: Port is not a number!";
         }
         try {
             Socket s = socketFactory.createSocket(hostName, port);
-            ChatInputStream ci = (ChatInputStream) s.getInputStream();
-            ChatOutputStream co = (ChatOutputStream) s.getOutputStream();
+            ChatOutputStream co = new ChatOutputStream(s.getOutputStream());
+            co.flush();
+            ChatInputStream ci = new ChatInputStream(s.getInputStream());
             Connection c = new ServerConnection(s, co, ci);
 
             if (!client.connect(c)) {
                 connectButton.setEnabled(true);
                 disconnectButton.setEnabled(false);
                 sendMessageButton.setEnabled(false);
+                messageTextArea.setEnabled(false);
                 return "Error: Unable to connect to desired host and port!";
             }
         } catch (IOException e) {
             connectButton.setEnabled(true);
             disconnectButton.setEnabled(false);
             sendMessageButton.setEnabled(false);
+            messageTextArea.setEnabled(false);
             return "Error: Unable to connect to desired host and port!";
         }
 
         connectButton.setEnabled(false);
         disconnectButton.setEnabled(true);
         sendMessageButton.setEnabled(true);
+        messageTextArea.setEnabled(true);
+        client.beginReceiving();
         return "You have been successfully connected to " + hostName + " at port " + portNumber + ".";
     }
 
@@ -111,11 +115,18 @@ public class ChatApp extends JFrame {
             connectButton.setEnabled(true);
             disconnectButton.setEnabled(false);
             sendMessageButton.setEnabled(false);
+            messageTextArea.setEnabled(false);
+
+            if (server != null) {
+                server.stop();
+                server = null;
+            }
             return "You have been successfully disconnected.";
         } else {
             connectButton.setEnabled(false);
             disconnectButton.setEnabled(true);
             sendMessageButton.setEnabled(true);
+            messageTextArea.setEnabled(true);
             return "Error: You were unable to be disconnected!";
         }
     }
@@ -131,8 +142,40 @@ public class ChatApp extends JFrame {
         }
     }
 
-    public String startServer() {
-        return null;
+    public String startServer(String hostName, String portNumber) {
+        connectButton.setEnabled(true);
+        disconnectButton.setEnabled(false);
+        sendMessageButton.setEnabled(false);
+        messageTextArea.setEnabled(false);
+
+        if (hostName == null || portNumber == null) {
+            return "Error: Invalid Host Name or Port Number";
+        }
+        int port;
+        try {
+            port = Integer.parseInt(portNumber);
+        } catch (NumberFormatException e) {
+            return "Error: Port is not a number!";
+        }
+
+        try {
+            InetSocketAddress hostAddress = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), port);
+            ServerSocketChannel serverSocketChannel = ServerSocketChannel.open().bind(hostAddress);
+            ClientConnectionRunner connectionWatch = new ClientConnectionRunner(serverSocketChannel);
+            server = new Server(connectionWatch, new HashSet<>(), new LinkedList<>());
+            Thread serverThread = new Thread(server);
+            serverThread.start();
+        } catch (Exception e) {
+            return "Error: Unable to host on desired host and port!";
+        }
+
+        System.out.println("Successfully created server \"" + hostName + "\" on port " + port + ".");
+        connectButton.setEnabled(false);
+        disconnectButton.setEnabled(true);
+        sendMessageButton.setEnabled(true);
+        messageTextArea.setEnabled(true);
+
+        return connectToServer("127.0.0.1", Integer.toString(port));
     }
 
     public static void main(String[] args) {

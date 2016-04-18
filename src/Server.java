@@ -4,18 +4,58 @@ import java.util.Queue;
 import java.util.Set;
 
 public class Server implements Runnable {
-    private Connection connectionWatch;
+    private ClientConnectionRunner connectionWatch;
     private Set<Connection> connectedClients;
+    private Object clientsLock = new Object();
     private Queue<Message> unsentMessages;
+    private Object messagesLock = new Object();
     private boolean running = true;
 
-    public Server(Connection connectionWatch, Set<Connection> connectedClients, Queue<Message> unsentMessages) throws IllegalArgumentException {
+    public Server(ClientConnectionRunner connectionWatch, Set<Connection> connectedClients, Queue<Message> unsentMessages) throws IllegalArgumentException {
         if(connectionWatch == null || connectedClients == null || unsentMessages == null) {
             throw new IllegalArgumentException("No arguments can be null");
         }
         this.connectionWatch = connectionWatch;
         this.connectedClients = connectedClients;
         this.unsentMessages = unsentMessages;
+
+        Thread senderThread = new Thread() {
+            public void run() {
+                while(isRunning()) {
+                    Message message;
+                    boolean moreMessages;
+                    do {
+                        synchronized (messagesLock) {
+                            message = unsentMessages.poll();
+                            moreMessages = !unsentMessages.isEmpty();
+                        }
+                        if(message != null) {
+                            sendMessage(message);
+                        }
+                    } while(moreMessages);
+                    try {
+                        sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        senderThread.start();
+
+        Thread connectionThread = new Thread() {
+            public void run() {
+                while(isRunning()) {
+                    checkForConnections();
+                    try {
+                        sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        connectionThread.start();
     }
 
     public Collection<Connection> getConnectedClients() {
@@ -55,8 +95,10 @@ public class Server implements Runnable {
     // Sends a message to all connectedClients
     public void sendMessage(Message message) throws IllegalArgumentException {
         if(message == null) { throw new IllegalArgumentException("message cannot be null"); }
-        for(Connection c : connectedClients) {
-            c.send(message);
+        synchronized (clientsLock) {
+            for(Connection c : connectedClients) {
+                c.send(message);
+            }
         }
     }
 
@@ -64,14 +106,16 @@ public class Server implements Runnable {
     public void checkForConnections() {
         Collection<Connection> connectionsToClose = getDisconnectedClients();
         closeConnections(connectionsToClose);
-        addNewConnections();
+        checkForNewConnection();
     }
 
     private Collection<Connection> getDisconnectedClients() {
         Collection<Connection> connectionsToClose = new ArrayList<>();
-        for(Connection c : getConnectedClients()) {
-            if(!c.isOpen()) {
-                connectionsToClose.add(c);
+        synchronized(clientsLock) {
+            for(Connection c : getConnectedClients()) {
+                if(!c.isOpen()) {
+                    connectionsToClose.add(c);
+                }
             }
         }
         return connectionsToClose;
@@ -79,19 +123,44 @@ public class Server implements Runnable {
 
     private void closeConnections(Collection<Connection> connectionsToClose) {
         for(Connection c : connectionsToClose) {
-            getConnectedClients().remove(c);
+            synchronized (clientsLock) {
+                getConnectedClients().remove(c);
+            }
         }
     }
 
-    private void addNewConnections() {
-        Connection c = safeReceive(connectionWatch);
-        while(c != null) {
-            getConnectedClients().add(c);
-            c = safeReceive(connectionWatch);
+    private void checkForNewConnection() {
+        Connection socket = safeReceive(connectionWatch);
+        if(socket != null && socket.isOpen()) {
+            synchronized (clientsLock) {
+                getConnectedClients().add(socket);
+            }
+
+            Thread clientThread = new Thread() {
+                public void run() {
+                    while(isRunning() && socket.isOpen()) {
+                        Message m = safeReceive(socket);
+                        if(m != null) {
+                            synchronized (messagesLock) {
+                                unsentMessages.add(m);
+                            }
+                        }
+                        try {
+                            sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if(socket.isOpen()) {
+                        socket.disconnect();
+                    }
+                }
+            };
+            clientThread.start();
         }
     }
 
-    private static <T> T safeReceive(Connection connection) {
+    private static <T> T safeReceive(ReadOnlyConnection connection) {
         T receivedData = null;
         try {
             receivedData = (T)connection.receive();
