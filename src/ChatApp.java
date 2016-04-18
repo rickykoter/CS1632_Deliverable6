@@ -69,7 +69,7 @@ public class ChatApp extends JFrame {
 
     public String connectToServer(String hostName, String portNumber, String alias) {
         if (client == null) {
-            client = new Session();
+            client = new ChatClient();
         }
         if (!client.setAlias(alias)) {
             connectButton.setEnabled(true);
@@ -188,7 +188,7 @@ public class ChatApp extends JFrame {
 
     public static void main(String[] args) {
         setTheme();
-        ChatApp gui = new ChatApp(new Session(), SocketFactory.getDefault());
+        ChatApp gui = new ChatApp(new ChatClient(), SocketFactory.getDefault());
         JFrame frame = new JFrame("Chat App");
         frame.setContentPane(gui.mainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -1,9 +1,9 @@
-public class Session implements Client{
+public class ChatClient implements Client{
     private Connection _connection;
     private String _alias;
     private ClientReceiveThread _crt;
 
-    public Session(){
+    public ChatClient(){
         _connection = null;
         _alias = "Anonymous";
         _crt = new ClientReceiveThread();
