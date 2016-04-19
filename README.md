@@ -1,5 +1,5 @@
 # CS1632_Deliverable6
-# Deliverable 6 - ChatApp: A Multiple Client and Server Chat Application Achieved Through TDD
+## Deliverable 6 - ChatApp: A Multiple Client and Server Chat Application Achieved Through TDD
 
 #####Note: This project was created using IntelliJ
 
@@ -47,3 +47,5 @@ Create a new eclipse project: File -> New -> Java Project and give it any name
 
 ###6) Run the program and tests
 The main ChatApp class is in the "src" directory, and the tests are in "test" directory.
+If not already set as source folders, add both directories (test and src) to the Build Path by right clicking each directory in Eclipse and selecting Build Path -> Use as Source Folder.
+
