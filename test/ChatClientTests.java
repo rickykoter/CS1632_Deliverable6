@@ -13,7 +13,7 @@ import static org.mockito.Mockito.*;
 
 public class ChatClientTests {
 
-    //Tests that the connect function returns False if the connection is not open.
+    // Tests that the connect function returns False if the connection is not open.
     @Test
     public void connectTestFailedConnectionNotOpen() {
         Client c = new ChatClient();
@@ -23,7 +23,14 @@ public class ChatClientTests {
         assertFalse(c.connect(conn));
     }
 
-    //Tests that the connect function returns True if the connection is open.
+    // Tests that the connect function returns False if the argument for the connection is null.
+    @Test
+    public void connectTestFailedNullConnection() {
+        Client c = new ChatClient();
+        assertFalse(c.connect(null));
+    }
+
+    // Tests that the connect function returns True if the connection is open.
     @Test
     public void connectTestSuccessfulConnection() {
         Client c = new ChatClient();
@@ -178,6 +185,16 @@ public class ChatClientTests {
         Client c = new ChatClient();
 
         assertFalse(c.setAlias(""));
+        assertEquals("Anonymous", c.getAlias());
+    }
+
+    // Tests that the setAlias does not sets the alias (returned by getAlias and is still the default)
+    // to a null value and returns false.
+    @Test
+    public void setAliasTestFailNull(){
+        Client c = new ChatClient();
+
+        assertFalse(c.setAlias(null));
         assertEquals("Anonymous", c.getAlias());
     }
 

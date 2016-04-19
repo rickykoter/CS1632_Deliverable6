@@ -64,7 +64,7 @@ public class ChatClient implements Client{
     // If the desired alias "a" is beween 1 and 15 characters, then set the Clients alias to it and return true;
     // otherwise, return false.
     public boolean setAlias(String a) {
-        if(a.length() > 15 || a.length() < 1){
+        if(a == null || a.length() > 15 || a.length() < 1){
             return false;
         } else {
             _alias = a;

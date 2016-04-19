@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.nio.channels.ServerSocketChannel;
 import java.util.HashSet;
 import java.util.LinkedList;
+
 /**
  * Main class and GUI. Allows for user interaction with client and server creation and messag sending.
  * By Richard Kotermanski and Jon Povirk
@@ -36,6 +37,7 @@ public class ChatApp extends JFrame {
 
     // Handles button actions and displaying result to the text output area in th GUI.
     public ChatApp(Client c, SocketFactory sf) {
+        if (c == null || sf == null) throw new IllegalArgumentException("Cannot be null");
         System.setOut(new PrintStream(new TextAreaOutputStream(chatTextArea)));
         client = c;
         aliasTextField.setText(client.getAlias());
@@ -79,7 +81,6 @@ public class ChatApp extends JFrame {
         if (client == null) {
             client = new ChatClient();
         }
-        boolean isError = false;
         if (!client.setAlias(alias)) {
             connectButton.setEnabled(true);
             disconnectButton.setEnabled(false);
@@ -97,6 +98,15 @@ public class ChatApp extends JFrame {
             messageTextArea.setEnabled(false);
             return "Error: Port is not a number!";
         }
+
+        if (hostName == null) {
+            connectButton.setEnabled(true);
+            disconnectButton.setEnabled(false);
+            sendMessageButton.setEnabled(false);
+            messageTextArea.setEnabled(false);
+            return "Error: Host cannot be null!";
+        }
+
         try {
             Socket s = socketFactory.createSocket(hostName, port);
             ChatOutputStream co = new ChatOutputStream(s.getOutputStream());

@@ -7,9 +7,7 @@ import javax.net.SocketFactory;
 import java.io.*;
 import java.net.Socket;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -54,6 +52,30 @@ public class ChatAppTests {
         assertFalse(ca.sendMessageButton.isEnabled());
         assertTrue(ca.startServerButton.isEnabled());
     }
+
+    // Tests that the constructor throws an exception for any combination of null arguments.
+    @Test
+    public void constructorTestValidStringNull() {
+        Client c = mock(Client.class);
+        try {
+            ChatApp ca = new ChatApp(null,null);
+            fail("Did not experience an exception for both being null!");
+        } catch (IllegalArgumentException e){
+            //pass
+        }
+        try {
+            ChatApp ca = new ChatApp(c,null);
+            fail("Did not experience an exception for just a null SocketFactory!");
+        } catch (IllegalArgumentException e){
+            //pass
+        }
+        try {
+            ChatApp ca = new ChatApp(null,sf);
+            fail("Did not experience an exception for just a null Client!");
+        } catch (IllegalArgumentException e){
+            //pass
+        }
+    }
     
     // Tests that the connectToServer function returns success text in the case
     // of a successful connection and valid alias name. Also, ensures that the GUI buttons
@@ -79,7 +101,7 @@ public class ChatAppTests {
     // returned for an empty string alias argument, and
     // tests that the GUI buttons are enabled/disabled for a disconnected configuration.
     @Test
-    public void connectToServerTestInValidAliasEmpty() throws IOException {
+    public void connectToServerTestInvalidAliasEmpty() throws IOException {
         Client c = mock(Client.class);
         when(c.setAlias("FooBar")).thenReturn(true);
         when(c.connect(any(Connection.class))).thenReturn(true);
@@ -92,12 +114,30 @@ public class ChatAppTests {
         assertFalse(ca.disconnectButton.isEnabled());
         assertFalse(ca.sendMessageButton.isEnabled());
     }
-    
+
+    // For the connectToServer function, this tests that the correct error message is
+    // returned for a null alias argument, and
+    // tests that the GUI buttons are enabled/disabled for a disconnected configuration.
+    @Test
+    public void connectToServerTestInvalidAliasNull() throws IOException {
+        Client c = mock(Client.class);
+        when(c.setAlias("FooBar")).thenReturn(true);
+        when(c.connect(any(Connection.class))).thenReturn(true);
+
+        ChatApp ca = new ChatApp(c, sf);
+
+        String res = ca.connectToServer("foo.bar.0", "0", null);
+        assertEquals("Error: Alias is invalid. Must be between 1 and 15 characters.", res);
+        assertTrue(ca.connectButton.isEnabled());
+        assertFalse(ca.disconnectButton.isEnabled());
+        assertFalse(ca.sendMessageButton.isEnabled());
+    }
+
     // TFor the connectToServer function, this tests that thecorrect error message is returned 
     // for an alias argument that is over 15 characters, and
     // tests that the GUI buttons are enabled/disabled for a disconnected configuration.
     @Test
-    public void connectToServerTestInValidAliasOver15() throws IOException {
+    public void connectToServerTestInvalidAliasOver15() throws IOException {
         Client c = mock(Client.class);
         when(c.setAlias("123456789123456")).thenReturn(false);
         when(c.connect(any(Connection.class))).thenReturn(true);
@@ -164,6 +204,36 @@ public class ChatAppTests {
 
         String res = ca.connectToServer("in.valid.0", "a12", "FooBar");
         assertEquals("Error: Port is not a number!", res);
+        assertTrue(ca.connectButton.isEnabled());
+        assertFalse(ca.disconnectButton.isEnabled());
+        assertFalse(ca.sendMessageButton.isEnabled());
+    }
+
+    // For the connectToServer function, this tests that the correct error message is returned for
+    // a portNumber that is null, and tests that the GUI buttons are enabled/disabled for a disconnected configuration.
+    @Test
+    public void connectToServerTestPortNotANumberNull() throws IOException {
+        Client c = mock(Client.class);
+        when(c.setAlias("FooBar")).thenReturn(true);
+        ChatApp ca = new ChatApp(c, sf);
+
+        String res = ca.connectToServer("in.valid.0", null, "FooBar");
+        assertEquals("Error: Port is not a number!", res);
+        assertTrue(ca.connectButton.isEnabled());
+        assertFalse(ca.disconnectButton.isEnabled());
+        assertFalse(ca.sendMessageButton.isEnabled());
+    }
+
+    // For the connectToServer function, this tests that the correct error message is returned for
+    // a hostName that is null, and tests that the GUI buttons are enabled/disabled for a disconnected configuration.
+    @Test
+    public void connectToServerTestHostNameNull() throws IOException {
+        Client c = mock(Client.class);
+        when(c.setAlias("FooBar")).thenReturn(true);
+        ChatApp ca = new ChatApp(c, sf);
+
+        String res = ca.connectToServer(null, "0", "FooBar");
+        assertEquals("Error: Host cannot be null!", res);
         assertTrue(ca.connectButton.isEnabled());
         assertFalse(ca.disconnectButton.isEnabled());
         assertFalse(ca.sendMessageButton.isEnabled());
