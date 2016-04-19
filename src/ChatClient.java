@@ -1,5 +1,5 @@
 /**
- * ChatClient manages a Connection by receiving (listening) and sending messages under an alias.
+ * ChatClient manages a Connection by receiving (listening) and sending messages with an associated alias.
  * By Richard Kotermanski and Jon Povirk
  */
 public class ChatClient implements Client{

@@ -1,11 +1,13 @@
 import java.io.IOException;
 import java.net.Socket;
-
+/**
+ * ServerConnection that uses sockets, input streams and output streams to communicate with a server.
+ * By Richard Kotermanski and Jon Povirk
+ */
 public class ServerConnection implements Connection{
     private Socket socket;
     private ChatOutputStream output;
     private ChatInputStream input;
-
 
     public ServerConnection(Socket s, ChatOutputStream cos, ChatInputStream cis){
         if(s == null || cos == null || cis == null){

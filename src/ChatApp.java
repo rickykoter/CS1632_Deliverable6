@@ -79,10 +79,12 @@ public class ChatApp extends JFrame {
         if (client == null) {
             client = new ChatClient();
         }
+        boolean isError = false;
         if (!client.setAlias(alias)) {
             connectButton.setEnabled(true);
             disconnectButton.setEnabled(false);
             sendMessageButton.setEnabled(false);
+            messageTextArea.setEnabled(false);
             return "Error: Alias is invalid. Must be between 1 and 15 characters.";
         }
         int port;
