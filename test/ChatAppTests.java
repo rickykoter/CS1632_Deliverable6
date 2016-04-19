@@ -13,13 +13,18 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
+/**
+ * Tests for the ChatApp class and thus the GUI.
+ * By Richard Kotermanski and Jon Povirk
+ */
 public class ChatAppTests {
     @Mock
     SocketFactory sf = mock(SocketFactory.class);
 
     @Before
     public void setUp() throws IOException {
+        // Create a mocked socket factory used in most test cases that uses a ByteArrayOutputStream
+        // to work with the ObjectOutputStream's constructor since a mocked object does not work.
         MockitoAnnotations.initMocks(sf);
         Socket s = mock(Socket.class);
         InputStream is = mock(InputStream.class);
@@ -35,7 +40,8 @@ public class ChatAppTests {
 
         when(sf.createSocket("foo.bar.0", 0)).thenReturn(s);
     }
-
+    
+    // Tests that the constructor sets the GUI's buttons to their default state.
     @Test
     public void constructorTestValidString() {
         Client c = mock(Client.class);
@@ -47,7 +53,10 @@ public class ChatAppTests {
         assertFalse(ca.sendMessageButton.isEnabled());
         assertTrue(ca.startServerButton.isEnabled());
     }
-
+    
+    // Tests that the connectToServer function returns success text in the case
+    // of a successful connection and valid alias name. Also, ensures that the GUI buttons
+    // are enabled/diabled for a connected configuration.
     @Test
     public void connectToServerTestValid() throws IOException {
         Client c = mock(Client.class);
@@ -63,7 +72,10 @@ public class ChatAppTests {
         assertFalse(ca.connectButton.isEnabled());
         assertTrue(ca.sendMessageButton.isEnabled());
     }
-
+    
+    // For the connectToServer function, this tests that the correct error message is 
+    // returned for an empty string alias argument, and
+    // tests that the GUI buttons are enabled/diabled for a disconnected configuration.
     @Test
     public void connectToServerTestInValidAliasEmpty() throws IOException {
         Client c = mock(Client.class);
@@ -78,7 +90,10 @@ public class ChatAppTests {
         assertFalse(ca.disconnectButton.isEnabled());
         assertFalse(ca.sendMessageButton.isEnabled());
     }
-
+    
+    // TFor the connectToServer function, this tests that thecorrect error message is returned 
+    // for an alias argument that is over 15 characters, and
+    // tests that the GUI buttons are enabled/diabled for a disconnected configuration.
     @Test
     public void connectToServerTestInValidAliasOver15() throws IOException {
         Client c = mock(Client.class);
@@ -93,7 +108,10 @@ public class ChatAppTests {
         assertFalse(ca.disconnectButton.isEnabled());
         assertFalse(ca.sendMessageButton.isEnabled());
     }
-
+    
+    // For the connectToServer function, this tests that the correct error message is returned 
+    // in the case that the Client's connect function returns false, and
+    // tests that the GUI buttons are enabled/diabled for a disconnected configuration.
     @Test
     public void connectToServerTestFailedConnection() throws IOException {
         Client c = mock(Client.class);
@@ -109,6 +127,10 @@ public class ChatAppTests {
         assertFalse(ca.sendMessageButton.isEnabled());
     }
 
+    // For the connectToServer function, this tests that the correct error message is returned 
+    // in the case that the socket factory throws an exception 
+    // when attempting to be make a socket for the desired hostName and portNumber, and
+    // tests that the GUI buttons are enabled/diabled for a disconnected configuration.
     @Test
     public void connectToServerTestIOExceptionHandling() throws IOException {
         Client c = mock(Client.class);
@@ -127,7 +149,10 @@ public class ChatAppTests {
         assertFalse(ca.disconnectButton.isEnabled());
         assertFalse(ca.sendMessageButton.isEnabled());
     }
-
+    
+    // For the connectToServer function, this tests that the correct error message is returned for 
+    // a portNumber (string) that is not a parsable integer value, 
+    // and tests that the GUI buttons are enabled/diabled for a disconnected configuration.
     @Test
     public void connectToServerTestPortNotANumber() throws IOException {
         Client c = mock(Client.class);
@@ -140,7 +165,8 @@ public class ChatAppTests {
         assertFalse(ca.disconnectButton.isEnabled());
         assertFalse(ca.sendMessageButton.isEnabled());
     }
-
+    
+    // Tests that the disconnectFromServer function
     @Test
     public void disconnectFromServerTestClientFailure() throws IOException {
         Client c = mock(Client.class);
