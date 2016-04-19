@@ -325,4 +325,26 @@ public class ChatAppTests {
         String res = ca.sendMessageToServer("");
         assertEquals("Error: Please provide text to send!", res);
     }
+
+    @Test
+    public void startServerValidArgumentsSuccess() {
+        Client c = mock(Client.class);
+        ChatApp app = new ChatApp(c, sf);
+        final String unexpected = "Error";
+
+        String actual = app.startServer("127.0.0.1", "8123", "Anonymous");
+
+        assertFalse(actual.contains(unexpected));
+    }
+
+    @Test
+    public void startServerNullArgumentsErrorMessageReturned() {
+        Client c = mock(Client.class);
+        ChatApp app = new ChatApp(c, sf);
+        final String expected = "Error";
+
+        String actual = app.startServer(null, null, null);
+
+        assertTrue(actual.contains(expected));
+    }
 }
