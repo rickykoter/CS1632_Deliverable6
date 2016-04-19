@@ -7,16 +7,16 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Tests for the Session class (implementation of Client)
+ * Tests for the ChatClient class (implementation of Client)
  * by Richard Kotermanski and Jon Povirk
  */
 
-public class SessionTests {
+public class ChatClientTests {
 
     //Tests that the connect function returns False if the connection is not open.
     @Test
     public void connectTestFailedConnectionNotOpen() {
-        Client c = new Session();
+        Client c = new ChatClient();
         Connection conn = mock(Connection.class);
         when(conn.isOpen()).thenReturn(false);
 
@@ -26,7 +26,7 @@ public class SessionTests {
     //Tests that the connect function returns True if the connection is open.
     @Test
     public void connectTestSuccessfulConnection() {
-        Client c = new Session();
+        Client c = new ChatClient();
         Connection conn = mock(Connection.class);
         when(conn.isOpen()).thenReturn(true);
 
@@ -36,7 +36,7 @@ public class SessionTests {
     // Tests that the isConnected function returns false prior to a connection being made. (no connection)
     @Test
     public void isConnectedTestInitial() {
-        Client c = new Session();
+        Client c = new ChatClient();
 
         assertFalse(c.isConnected());
     }
@@ -45,7 +45,7 @@ public class SessionTests {
     // returns true for it's isOpen function. (no connection)
     @Test
     public void isConnectedTestAfterSuccessfulConnection() {
-        Client c = new Session();
+        Client c = new ChatClient();
         Connection conn = mock(Connection.class);
         when(conn.isOpen()).thenReturn(true);
         c.connect(conn);
@@ -56,7 +56,7 @@ public class SessionTests {
     // Tests that the isConnected function returns false if no connection is given (null).
     @Test
     public void isConnectedTestAfterNullConnection() {
-        Client c = new Session();
+        Client c = new ChatClient();
         c.connect(null);
 
         assertFalse(c.isConnected());
@@ -66,7 +66,7 @@ public class SessionTests {
     // said connection is then disconnected. (no connection)
     @Test
     public void isConnectedTestAfterDisconnected() {
-        Client c = new Session();
+        Client c = new ChatClient();
         Connection conn = mock(Connection.class);
         when(conn.isOpen()).thenReturn(true);
         c.connect(conn);
@@ -78,7 +78,7 @@ public class SessionTests {
     // Tests that the disconnect function returns false if no connection has been made yet.
     @Test
     public void disconnectTestFailureBeforeConnection() {
-        Client c = new Session();
+        Client c = new ChatClient();
 
         assertFalse(c.disconnect());
     }
@@ -87,7 +87,7 @@ public class SessionTests {
     // and it's respective disconnect function returns true.
     @Test
     public void disconnectTestSuccessAfterConnection() {
-        Client c = new Session();
+        Client c = new ChatClient();
         Connection conn = mock(Connection.class);
         when(conn.isOpen()).thenReturn(true);
         when(conn.disconnect()).thenReturn(true);
@@ -101,7 +101,7 @@ public class SessionTests {
     // and it's respective disconnect function returns false.
     @Test
     public void disconnectTestFailureAfterConnection() {
-        Client c = new Session();
+        Client c = new ChatClient();
         Connection conn = mock(Connection.class);
         when(conn.isOpen()).thenReturn(false);
         when(conn.disconnect()).thenReturn(false);
@@ -113,7 +113,7 @@ public class SessionTests {
     // Tests that the send function returns false if a connection has yet to be made.
     @Test
     public void sendTestFailureBeforeConnection() {
-        Client c = new Session();
+        Client c = new ChatClient();
 
         assertFalse(c.send(mock(Message.class)));
     }
@@ -122,7 +122,7 @@ public class SessionTests {
     // but said connection returns false when its send function is called.
     @Test
     public void sendTestFailureAfterConnection() {
-        Client c = new Session();
+        Client c = new ChatClient();
         Message m = mock(Message.class);
         Connection conn = mock(Connection.class);
         when(conn.isOpen()).thenReturn(true);
@@ -136,7 +136,7 @@ public class SessionTests {
     // and said connection returns true when its send function is called.
     @Test
     public void sendTestSuccessAfterConnection() {
-        Client c = new Session();
+        Client c = new ChatClient();
         Message m = mock(Message.class);
         Connection conn = mock(Connection.class);
         when(conn.send(m)).thenReturn(true);
@@ -149,14 +149,14 @@ public class SessionTests {
     // Tests that the getAlias returns a default alias (Anonymous) when called prior to setting it.
     @Test
     public void getAliasTestInitiallyAnonymous(){
-        Client c = new Session();
+        Client c = new ChatClient();
         assertEquals("Anonymous", c.getAlias());
     }
 
     // Tests that the setAlias sets the alias (returned by getAlias) to a valid string and returns true.
     @Test
     public void getAliasTestNotEmpty(){
-        Client c = new Session();
+        Client c = new ChatClient();
         c.setAlias("Foobar");
 
         assertEquals("Foobar", c.getAlias());
@@ -165,7 +165,7 @@ public class SessionTests {
     // Tests that the setAlias sets the alias (returned by getAlias) to a valid string with a space and returns true.
     @Test
     public void setAliasTestSpaceNotEmpty(){
-        Client c = new Session();
+        Client c = new ChatClient();
 
         assertTrue(c.setAlias("Foo Bar"));
         assertEquals("Foo Bar", c.getAlias());
@@ -175,7 +175,7 @@ public class SessionTests {
     // to an invalid, empty string and returns false.
     @Test
     public void setAliasTestFailEmpty(){
-        Client c = new Session();
+        Client c = new ChatClient();
 
         assertFalse(c.setAlias(""));
         assertEquals("Anonymous", c.getAlias());
@@ -185,7 +185,7 @@ public class SessionTests {
     // to an invalid, over-15-character string and returns false.
     @Test
     public void setAliasTestFailOver15Chars(){
-        Client c = new Session();
+        Client c = new ChatClient();
 
         assertFalse(c.setAlias("1234567891234567"));
         assertEquals("Anonymous", c.getAlias());
@@ -194,7 +194,7 @@ public class SessionTests {
     // Tests that the thread returned by beginReceiving finishes once disconnect is called.
     @Test
     public void beginReceivingTestNoException() throws IOException, ClassNotFoundException, InterruptedException {
-        Client c = new Session();
+        Client c = new ChatClient();
         Message m = mock(Message.class);
         Connection conn = mock(Connection.class);
         when(conn.receive()).thenReturn(m);
@@ -205,9 +205,9 @@ public class SessionTests {
         final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2);
 
         Thread th = c.beginReceiving();
-        Thread.sleep(1000);
+        Thread.sleep(500);
         c.disconnect();
-        Thread.sleep(1000);
+        Thread.sleep(500);
         verify(conn, atLeast(1)).receive();
         if(th.isAlive()){
             fail("Receiver still alive.");
@@ -218,7 +218,7 @@ public class SessionTests {
     // Tests that the thread returned by beginReceiving finishes if an exception occurs while receiving.
     @Test
     public void beginReceivingTestException() throws IOException, ClassNotFoundException, InterruptedException {
-        Client c = new Session();
+        Client c = new ChatClient();
         Connection conn = mock(Connection.class);
         when(conn.receive()).thenThrow(new IOException());
         when(conn.isOpen()).thenReturn(true);

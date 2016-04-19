@@ -77,7 +77,9 @@
               </grid>
               <gridbag top="5" left="5" bottom="5" right="5" weightx="0.25" weighty="0.0"/>
             </constraints>
-            <properties/>
+            <properties>
+              <text value="Anonymous"/>
+            </properties>
           </component>
           <component id="de5f8" class="javax.swing.JTextField" binding="portTextField">
             <constraints>
@@ -87,7 +89,7 @@
               <gridbag top="5" left="5" bottom="5" right="5" weightx="0.25" weighty="0.0"/>
             </constraints>
             <properties>
-              <text value=""/>
+              <text value="8123"/>
             </properties>
           </component>
           <component id="f34d5" class="javax.swing.JTextField" binding="hostTextField">
@@ -97,7 +99,9 @@
               </grid>
               <gridbag top="5" left="5" bottom="5" right="5" weightx="0.25" weighty="0.0"/>
             </constraints>
-            <properties/>
+            <properties>
+              <text value="127.0.0.1"/>
+            </properties>
           </component>
           <component id="bc23c" class="javax.swing.JLabel" binding="portLabel">
             <constraints>

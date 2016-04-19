@@ -9,7 +9,10 @@ import java.net.Socket;
 import java.nio.channels.ServerSocketChannel;
 import java.util.HashSet;
 import java.util.LinkedList;
-
+/**
+ * Main class and GUI. Allows for user interaction with client and server creation and messag sending.
+ * By Richard Kotermanski and Jon Povirk
+ */
 public class ChatApp extends JFrame {
     private JPanel mainPanel;
     private JTextField hostTextField;
@@ -30,7 +33,8 @@ public class ChatApp extends JFrame {
     private Client client;
     private SocketFactory socketFactory;
     private Server server;
-
+    
+    // Handles button actions and displaying result to the text output area in th GUI.
     public ChatApp(Client c, SocketFactory sf) {
         System.setOut(new PrintStream(new TextAreaOutputStream(chatTextArea)));
         client = c;
@@ -56,6 +60,7 @@ public class ChatApp extends JFrame {
             if (result.length() > 0) {
                 System.out.println(result);
             }
+            messageTextArea.setText("");
         });
 
         startServerButton.addActionListener(e -> {
@@ -65,10 +70,12 @@ public class ChatApp extends JFrame {
             }
         });
     }
-
+    
+    // Attempt to create a Client and its Connection to a corresponding Server at the given hostName an portNumber, and
+    // set the client's alias if between 1 and 15 characters. Sets button enabled states for GUI.
     public String connectToServer(String hostName, String portNumber, String alias) {
         if (client == null) {
-            client = new Session();
+            client = new ChatClient();
         }
         if (!client.setAlias(alias)) {
             connectButton.setEnabled(true);
@@ -116,14 +123,17 @@ public class ChatApp extends JFrame {
         client.beginReceiving();
         return "You have been successfully connected to " + hostName + " at port " + portNumber + ".";
     }
-
+    
+    // Attempts to disconnect from the server if client is already connected and returns success/failure message. 
+    // Sets button enabled states for GUI.
     public String disconnectFromServer() {
         if (client.isConnected() && client.disconnect()) {
             connectButton.setEnabled(true);
             disconnectButton.setEnabled(false);
             sendMessageButton.setEnabled(false);
             messageTextArea.setEnabled(false);
-
+            startServerButton.setEnabled(true);
+            client = null;
             if (server != null) {
                 server.stop();
                 server = null;
@@ -137,7 +147,9 @@ public class ChatApp extends JFrame {
             return "Error: You were unable to be disconnected!";
         }
     }
-
+    
+    // Attempts to send messages of length 1 or more to the currently connected Server if connected.
+    // Returns empty string if successful, and appropriate error message otherwise. Sets button enabled states for GUI.
     public String sendMessageToServer(String MessageText) {
         if (MessageText.length() <= 0) {
             return "Error: Please provide text to send!";
@@ -149,6 +161,8 @@ public class ChatApp extends JFrame {
         }
     }
 
+    // Attempts to create Server for the provided hostName and portNumber, and attempts to create client 
+    // for the server with the given alias. Returns a status message upon success/failure. Sets button enabled states for GUI.
     public String startServer(String hostName, String portNumber, String alias) {
         connectButton.setEnabled(true);
         disconnectButton.setEnabled(false);
@@ -180,13 +194,14 @@ public class ChatApp extends JFrame {
         disconnectButton.setEnabled(true);
         sendMessageButton.setEnabled(true);
         messageTextArea.setEnabled(true);
+        startServerButton.setEnabled(false);
 
         return connectToServer("127.0.0.1", Integer.toString(port), alias);
     }
 
     public static void main(String[] args) {
         setTheme();
-        ChatApp gui = new ChatApp(new Session(), SocketFactory.getDefault());
+        ChatApp gui = new ChatApp(new ChatClient(), SocketFactory.getDefault());
         JFrame frame = new JFrame("Chat App");
         frame.setContentPane(gui.mainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -269,6 +284,7 @@ public class ChatApp extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         panel1.add(messageTextArea, gbc);
         aliasTextField = new JTextField();
+        aliasTextField.setText("Anonymous");
         gbc = new GridBagConstraints();
         gbc.gridx = 4;
         gbc.gridy = 2;
@@ -278,7 +294,7 @@ public class ChatApp extends JFrame {
         gbc.insets = new Insets(5, 5, 5, 5);
         panel1.add(aliasTextField, gbc);
         portTextField = new JTextField();
-        portTextField.setText("");
+        portTextField.setText("8123");
         gbc = new GridBagConstraints();
         gbc.gridx = 4;
         gbc.gridy = 1;
@@ -288,6 +304,7 @@ public class ChatApp extends JFrame {
         gbc.insets = new Insets(5, 5, 5, 5);
         panel1.add(portTextField, gbc);
         hostTextField = new JTextField();
+        hostTextField.setText("127.0.0.1");
         gbc = new GridBagConstraints();
         gbc.gridx = 4;
         gbc.gridy = 0;
