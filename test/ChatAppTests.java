@@ -7,9 +7,7 @@ import javax.net.SocketFactory;
 import java.io.*;
 import java.net.Socket;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,7 +38,7 @@ public class ChatAppTests {
 
         when(sf.createSocket("foo.bar.0", 0)).thenReturn(s);
     }
-    
+
     // Tests that the constructor sets the GUI's buttons to their default state.
     @Test
     public void constructorTestValidString() {
@@ -53,7 +51,7 @@ public class ChatAppTests {
         assertFalse(ca.sendMessageButton.isEnabled());
         assertTrue(ca.startServerButton.isEnabled());
     }
-    
+
     // Tests that the connectToServer function returns success text in the case
     // of a successful connection and valid alias name. Also, ensures that the GUI buttons
     // are enabled/diabled for a connected configuration.
@@ -72,8 +70,8 @@ public class ChatAppTests {
         assertFalse(ca.connectButton.isEnabled());
         assertTrue(ca.sendMessageButton.isEnabled());
     }
-    
-    // For the connectToServer function, this tests that the correct error message is 
+
+    // For the connectToServer function, this tests that the correct error message is
     // returned for an empty string alias argument, and
     // tests that the GUI buttons are enabled/diabled for a disconnected configuration.
     @Test
@@ -90,8 +88,8 @@ public class ChatAppTests {
         assertFalse(ca.disconnectButton.isEnabled());
         assertFalse(ca.sendMessageButton.isEnabled());
     }
-    
-    // TFor the connectToServer function, this tests that thecorrect error message is returned 
+
+    // TFor the connectToServer function, this tests that thecorrect error message is returned
     // for an alias argument that is over 15 characters, and
     // tests that the GUI buttons are enabled/diabled for a disconnected configuration.
     @Test
@@ -108,8 +106,8 @@ public class ChatAppTests {
         assertFalse(ca.disconnectButton.isEnabled());
         assertFalse(ca.sendMessageButton.isEnabled());
     }
-    
-    // For the connectToServer function, this tests that the correct error message is returned 
+
+    // For the connectToServer function, this tests that the correct error message is returned
     // in the case that the Client's connect function returns false, and
     // tests that the GUI buttons are enabled/diabled for a disconnected configuration.
     @Test
@@ -127,8 +125,8 @@ public class ChatAppTests {
         assertFalse(ca.sendMessageButton.isEnabled());
     }
 
-    // For the connectToServer function, this tests that the correct error message is returned 
-    // in the case that the socket factory throws an exception 
+    // For the connectToServer function, this tests that the correct error message is returned
+    // in the case that the socket factory throws an exception
     // when attempting to be make a socket for the desired hostName and portNumber, and
     // tests that the GUI buttons are enabled/diabled for a disconnected configuration.
     @Test
@@ -149,9 +147,9 @@ public class ChatAppTests {
         assertFalse(ca.disconnectButton.isEnabled());
         assertFalse(ca.sendMessageButton.isEnabled());
     }
-    
-    // For the connectToServer function, this tests that the correct error message is returned for 
-    // a portNumber (string) that is not a parsable integer value, 
+
+    // For the connectToServer function, this tests that the correct error message is returned for
+    // a portNumber (string) that is not a parsable integer value,
     // and tests that the GUI buttons are enabled/diabled for a disconnected configuration.
     @Test
     public void connectToServerTestPortNotANumber() throws IOException {
@@ -165,7 +163,7 @@ public class ChatAppTests {
         assertFalse(ca.disconnectButton.isEnabled());
         assertFalse(ca.sendMessageButton.isEnabled());
     }
-    
+
     // Tests that the disconnectFromServer function
     @Test
     public void disconnectFromServerTestClientFailure() throws IOException {
@@ -235,5 +233,27 @@ public class ChatAppTests {
 
         String res = ca.sendMessageToServer("");
         assertEquals("Error: Please provide text to send!", res);
+    }
+
+    @Test
+    public void startServerValidArgumentsSuccess() {
+        Client c = mock(Client.class);
+        ChatApp app = new ChatApp(c, sf);
+        final String unexpected = "Error";
+
+        String actual = app.startServer("127.0.0.1", "8123", "Anonymous");
+
+        assertFalse(actual.contains(unexpected));
+    }
+
+    @Test
+    public void startServerNullArgumentsErrorMessageReturned() {
+        Client c = mock(Client.class);
+        ChatApp app = new ChatApp(c, sf);
+        final String expected = "Error";
+
+        String actual = app.startServer(null, null, null);
+
+        assertTrue(actual.contains(expected));
     }
 }

@@ -33,6 +33,7 @@ public class Server implements Runnable {
     // Starts the server
     @Override
     public void run() {
+        // This thread sends new messages to each client
         senderThread = new Thread() {
             public void run() {
                 while(isRunning()) {
@@ -57,6 +58,7 @@ public class Server implements Runnable {
         };
         senderThread.start();
 
+        // This thread scans for new client connections and removes disconnected clients
         connectionThread = new Thread() {
             public void run() {
                 while(isRunning()) {
@@ -110,6 +112,7 @@ public class Server implements Runnable {
         return connectionsToClose;
     }
 
+    // Closes any connections no longer marked open
     private void closeConnections(Collection<Connection> connectionsToClose) {
         for(Connection c : connectionsToClose) {
             synchronized (clientsLock) {
@@ -118,6 +121,7 @@ public class Server implements Runnable {
         }
     }
 
+    // Scans for newly connected clients
     private void checkForNewConnection() {
         Connection socket = safeReceive(connectionWatch);
         if(socket != null && socket.isOpen()) {
@@ -125,6 +129,7 @@ public class Server implements Runnable {
                 getConnectedClients().add(socket);
             }
 
+            // This thread is responsible for reading messages from connected clients
             Thread clientThread = new Thread() {
                 public void run() {
                     while(isRunning() && socket.isOpen()) {
