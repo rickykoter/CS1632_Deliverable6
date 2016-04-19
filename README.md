@@ -36,7 +36,7 @@ Create a new eclipse project: File -> New -> Java Project and give it any name
  
  4) Select Finish.
  
-###5) Add the jUnit library
+###5) Add the Mockito library
 
 1) Right click the project in the Package Explorer and selecting Build Path -> Add External Archives.
 
